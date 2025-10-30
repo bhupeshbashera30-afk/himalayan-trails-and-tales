@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Mountain, Utensils, Bed, Heart, Star, Calendar, Users, Phone, Mail, MapPin } from 'lucide-react';
+import { ChevronDown, Mountain, Utensils, Bed, Heart, Star, Calendar, Users, Phone, Mail, MapPin, Car } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -47,14 +48,16 @@ interface Package {
   is_featured: boolean;
 }
 
-const iconMap = {
+const iconMap: { [key: string]: any } = {
   utensils: Utensils,
   bed: Bed,
   mountain: Mountain,
   heart: Heart,
+  car: Car,
 };
 
 export default function Index() {
+  const navigate = useNavigate();
   const [categories, setCategories] = useState<Category[]>([]);
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [packages, setPackages] = useState<Package[]>([]);
@@ -212,7 +215,12 @@ export default function Index() {
                                 </div>
                               </div>
                             ))}
-                            <Button variant="outline" size="sm" className="w-full mt-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="w-full mt-2"
+                              onClick={() => navigate(`/category/${category.slug}`)}
+                            >
                               View All {category.name}
                             </Button>
                           </div>
@@ -806,7 +814,12 @@ export default function Index() {
                           </div>
                         ))}
                         
-                        <Button variant="outline" size="sm" className="w-full mt-4">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full mt-4"
+                          onClick={() => navigate(`/category/${category.slug}`)}
+                        >
                           Explore {category.name}
                         </Button>
                       </div>
