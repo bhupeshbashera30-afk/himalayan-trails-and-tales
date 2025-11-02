@@ -91,9 +91,28 @@ export default function Index() {
         supabase.from('packages_2025_10_14_17_34').select('*').eq('is_featured', true)
       ]);
 
-      if (categoriesRes.data) setCategories(categoriesRes.data);
-      if (destinationsRes.data) setDestinations(destinationsRes.data);
-      if (packagesRes.data) setPackages(packagesRes.data);
+      if (categoriesRes.error) {
+        console.error('Categories error:', categoriesRes.error);
+      }
+      if (destinationsRes.error) {
+        console.error('Destinations error:', destinationsRes.error);
+      }
+      if (packagesRes.error) {
+        console.error('Packages error:', packagesRes.error);
+      }
+
+      if (categoriesRes.data) {
+        console.log('Loaded categories:', categoriesRes.data.length);
+        setCategories(categoriesRes.data);
+      }
+      if (destinationsRes.data) {
+        console.log('Loaded destinations:', destinationsRes.data.length);
+        setDestinations(destinationsRes.data);
+      }
+      if (packagesRes.data) {
+        console.log('Loaded packages:', packagesRes.data.length);
+        setPackages(packagesRes.data);
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -149,12 +168,12 @@ export default function Index() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-card">
       {/* Navigation */}
-      <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${
+      <nav className={`fixed top-0 w-full z-40 transition-all duration-500 ${
         isScrolled ? 'glass backdrop-blur-xl py-2' : 'bg-transparent py-4'
       }`}>
         <div className="container mx-auto px-6">
           <div className="flex items-center justify-between">
-            <motion.div 
+            <motion.div
               className="font-serif text-2xl font-bold gradient-text"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -163,19 +182,19 @@ export default function Index() {
               Himalayan Trails & Tales
             </motion.div>
 
-            <div className="hidden md:flex items-center space-x-8">
-              {categories.map((category) => {
+            <div className="hidden lg:flex items-center gap-4 xl:gap-6 overflow-x-auto max-w-2xl">
+              {categories && categories.length > 0 && categories.map((category) => {
                 const IconComponent = iconMap[category.icon as keyof typeof iconMap] || Mountain;
                 return (
                   <div
                     key={category.id}
-                    className="relative"
+                    className="relative group"
                     onMouseEnter={() => setActiveDropdown(category.id)}
                     onMouseLeave={() => setActiveDropdown(null)}
                   >
-                    <button className="flex items-center space-x-2 text-foreground hover:text-primary transition-colors duration-300 group">
+                    <button className="flex items-center space-x-2 text-foreground hover:text-primary transition-colors duration-300">
                       <IconComponent className="w-4 h-4" />
-                      <span className="font-medium">{category.name}</span>
+                      <span className="font-medium text-sm">{category.name}</span>
                       <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${
                         activeDropdown === category.id ? 'rotate-180' : ''
                       }`} />
@@ -188,7 +207,7 @@ export default function Index() {
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: 10, scale: 0.95 }}
                           transition={{ duration: 0.2 }}
-                          className="absolute top-full left-0 mt-2 w-80 glass rounded-xl p-4 shadow-2xl"
+                          className="absolute top-full left-0 mt-1 w-80 glass rounded-xl p-4 shadow-2xl z-50 pointer-events-auto"
                         >
                           <div className="space-y-3">
                             <div className="text-sm text-muted-foreground mb-3">
