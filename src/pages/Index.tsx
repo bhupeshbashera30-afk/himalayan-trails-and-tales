@@ -212,7 +212,15 @@ export default function Index() {
                                 </div>
                               </div>
                             ))}
-                            <Button variant="outline" size="sm" className="w-full mt-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="w-full mt-2"
+                              onClick={() => {
+                                setActiveDropdown(null);
+                                navigate(`/category/${category.slug}`);
+                              }}
+                            >
                               View All {category.name}
                             </Button>
                           </div>
@@ -806,7 +814,12 @@ export default function Index() {
                           </div>
                         ))}
                         
-                        <Button variant="outline" size="sm" className="w-full mt-4">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full mt-4"
+                          onClick={() => navigate(`/category/${category.slug}`)}
+                        >
                           Explore {category.name}
                         </Button>
                       </div>
