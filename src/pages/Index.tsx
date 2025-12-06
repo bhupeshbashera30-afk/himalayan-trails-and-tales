@@ -533,22 +533,22 @@ export default function Index() {
             >
               <div className="grid grid-cols-2 gap-4">
                 <img 
-                  src="https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=400&h=300&fit=crop" 
+                  src="./images/kedarnath_temple_1.jpeg"
                   alt="Kedarnath Temple"
                   className="w-full h-48 object-cover rounded-xl shadow-lg"
                 />
                 <img 
-                  src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop" 
+                  src="./images/nanda_devi_peak_20251206_153656.png"
                   alt="Nanda Devi Peak"
                   className="w-full h-48 object-cover rounded-xl shadow-lg mt-8"
                 />
                 <img 
-                  src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&h=300&fit=crop" 
+                  src="./images/river_rafting_1.jpeg" 
                   alt="River Rafting in Rishikesh"
                   className="w-full h-48 object-cover rounded-xl shadow-lg -mt-8"
                 />
                 <img 
-                  src="https://images.unsplash.com/photo-1540979388789-6cee28a1cdc9?w=400&h=300&fit=crop" 
+                  src="./images/paragliding_1.jpeg" 
                   alt="Paragliding Adventure"
                   className="w-full h-48 object-cover rounded-xl shadow-lg"
                 />
