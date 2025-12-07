@@ -284,9 +284,9 @@ export default function Index() {
                                 <img 
                                   src={destination.images[0]} 
                                   alt={destination.name}
-                                  className="w-12 h-12 rounded-lg object-cover"
+                                  className="hidden w-12 h-12 rounded-lg object-cover"
                                 />
-                                <div className="flex-1">
+                                <div className="hidden flex-1">
                                   <div className="font-medium text-sm">{destination.name}</div>
                                   <div className="text-xs text-muted-foreground">{destination.location}</div>
                                   <div className="text-xs text-primary font-medium">{destination.price_range}</div>
