@@ -230,6 +230,10 @@ export default function Index() {
     }));
   };
 
+  function handleShowContact(arg0: string): void {
+    throw new Error('Function not implemented.');
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-card">
       {/* Navigation */}
@@ -278,7 +282,7 @@ export default function Index() {
                             <div className="text-sm text-muted-foreground mb-3">
                               {category.description}
                             </div>
-                            {getDestinationsByCategory(category.id).slice(0, 3).map((destination) => (
+                            {getDestinationsByCategory(category.id).slice(0, 2).map((destination) => (
                               <div key={destination.id} className="flex items-start space-x-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
                                 <img 
                                   src={destination.images[0]} 
@@ -296,12 +300,7 @@ export default function Index() {
                                 </div>
                               </div>
                             ))}
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="w-full mt-2"
-                              onClick={() => navigate(`/category/${category.slug}`)}
-                            >
+                            <Button variant="outline" size="sm" className="w-full mt-2" onClick={() => navigate(`/category/${category.slug}`)}>
                               View All {category.name}
                             </Button>
                           </div>
@@ -475,18 +474,11 @@ export default function Index() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
           >
-            <Button size="lg" className="text-lg px-8 py-6 pulse-glow">
-              <Calendar className="w-5 h-5 mr-2" />
-              Start Your Journey
-            </Button>
-            <Button variant="outline" size="lg" className="text-lg px-8 py-6 glass"
-           onClick={() => {
-                  navigator.clipboard.writeText('+91 8630113945');
-                  toast({ title: "Phone Copied!", description: "+91 8630113945" });
-                }}>
-            <Phone className="w-5 h-5 mr-2" />
-            Speak with Expert
-            </Button>
+          <Button variant="outline" size="lg" className="text-lg px-8 py-6 glass"
+                     onClick={() => handleShowContact('phone')}>
+                      <Phone className="w-5 h-5 mr-2" />
+                      Speak with Expert
+          </Button>
           </motion.div>
         </div>
 
@@ -746,10 +738,6 @@ export default function Index() {
               Join us on an unforgettable journey through the mystical Himalayas and experience the magic of Uttarakhand's 
               pristine beauty, rich culture, and spiritual essence.
             </p>
-            <Button size="lg" className="pulse-glow">
-              <Mountain className="w-5 h-5 mr-2" />
-              Start Your Himalayan Adventure
-            </Button>
           </motion.div>
         </div>
       </section>
@@ -896,12 +884,7 @@ export default function Index() {
                           </div>
                         ))}
                         
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="w-full mt-4"
-                          onClick={() => navigate(`/category/${category.slug}`)}
-                        >
+                        <Button variant="outline" size="sm" className="w-full mt-4" onClick={() => navigate(`/category/${category.slug}`)}>
                           Explore {category.name}
                         </Button>
                       </div>
@@ -929,14 +912,10 @@ export default function Index() {
                 <Button 
                   variant="outline" 
                   size="sm"
-                  onClick={() => {
-                    navigator.clipboard.writeText('+91 8630113945');
-                    toast({ title: "Phone Copied!", description: "+91 8630113945" });
-                  }}
-                >     
+                  onClick={() => handleShowContact('phone')}>
                   <Phone className="w-4 h-4 mr-2" />
                   Call Us
-                  </Button>
+                </Button>
 
                 <Button variant="outline" size="sm"
                   onClick={() => window.location.href = "mailto:Himalayantrailesandtales@gmail.com"}>
@@ -953,6 +932,13 @@ export default function Index() {
                 <div>Our Services</div>
                 <div>Travel Packages</div>
                 <div>Contact</div>
+              </div>
+            </div>
+
+             <div>
+              <h3 className="font-semibold mb-4">Destination</h3>
+              <div className="space-y-2 text-sm text-muted-foreground">
+                <div>Uttrakhand</div>
               </div>
             </div>
             
@@ -978,7 +964,7 @@ export default function Index() {
           </div>
           
           <div className="border-t border-border mt-12 pt-8 text-center text-sm text-muted-foreground">
-            <p>&copy; 2024 Himalayan Trails & Tales. All rights reserved. Crafted with ❤️ for mountain lovers.</p>
+            <p>&copy; 2025 Himalayan Trails & Tales. All rights reserved. Crafted with ❤️ for mountain lovers.</p>
           </div>
         </div>
       </footer>
