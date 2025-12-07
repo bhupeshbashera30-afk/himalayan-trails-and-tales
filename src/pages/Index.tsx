@@ -472,10 +472,14 @@ export default function Index() {
               Start Your Journey
             </Button>
             <Button variant="outline" size="lg" className="text-lg px-8 py-6 glass"
+<<<<<<< HEAD
            onClick={() => {
                   navigator.clipboard.writeText('+91 8630113945');
                   toast({ title: "Phone Copied!", description: "+91 8630113945" });
                 }}>
+=======
+            onClick={() => handleShowContact('phone')}>
+>>>>>>> 0c0988591e18d1d6749f407fec799d799aa2791b
             <Phone className="w-5 h-5 mr-2" />
             Speak with Expert
             </Button>
