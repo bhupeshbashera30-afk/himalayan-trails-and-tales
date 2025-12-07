@@ -248,7 +248,7 @@ export default function Index() {
               Himalayan Trails & Tales
             </motion.div>
 
-            <div className="hidden md:flex items-center space-x-8">
+            <div className="md:flex items-center space-x-8">
               {categories.map((category) => {
                 const IconComponent = iconMap[category.icon as keyof typeof iconMap] || Mountain;
                 return (
@@ -279,14 +279,14 @@ export default function Index() {
                             <div className="text-sm text-muted-foreground mb-3">
                               {category.description}
                             </div>
-                            {getDestinationsByCategory(category.id).slice(0, 2).map((destination) => (
+                            {getDestinationsByCategory(category.id).slice(0, 4).map((destination) => (
                               <div key={destination.id} className="flex items-start space-x-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
                                 <img 
                                   src={destination.images[0]} 
                                   alt={destination.name}
-                                  className="hidden w-12 h-12 rounded-lg object-cover"
+                                  className="w-12 h-12 rounded-lg object-cover"
                                 />
-                                <div className="hidden flex-1">
+                                <div className="flex-1">
                                   <div className="font-medium text-sm">{destination.name}</div>
                                   <div className="text-xs text-muted-foreground">{destination.location}</div>
                                   <div className="text-xs text-primary font-medium">{destination.price_range}</div>
@@ -434,7 +434,7 @@ export default function Index() {
 
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-background via-card to-background opacity-95" />
+        <div className="absolute inset-0 bg-gradient-to-br from-background via-card to-background opacity-90" />
         <div className="absolute inset-0">
           <img 
             src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&h=1080&fit=crop" 
@@ -766,7 +766,7 @@ export default function Index() {
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <Card className="group hover:shadow-2xl transition-all duration-500 overflow-hidden glass">
+                <Card className="group hover:shadow-2xl transition-all duration-500 overflow-glass">
                   <div className="relative overflow-hidden">
                     <img 
                       src={pkg.images[0]} 
@@ -863,7 +863,7 @@ export default function Index() {
                     
                     <CardContent>
                       <div className="space-y-3">
-                        {categoryDestinations.slice(0, 2).map((destination) => (
+                        {categoryDestinations.slice(0, 4).map((destination) => (
                           <div key={destination.id} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
                             <img 
                               src={destination.images[0]} 
