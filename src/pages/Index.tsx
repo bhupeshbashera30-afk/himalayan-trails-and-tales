@@ -881,7 +881,7 @@ export default function Index() {
                           </div>
                         ))}
                         
-                        <Button variant="outline" size="sm" className="w-full mt-4">
+                        <Button variant="outline" size="sm" className="w-full mt-4"> onClick={() => navigate(`/category/${category.slug}`)}
                           Explore {category.name}
                         </Button>
                       </div>
