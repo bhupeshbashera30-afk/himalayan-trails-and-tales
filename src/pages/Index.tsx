@@ -816,7 +816,7 @@ export default function Index() {
                           )}
                         </div>
                       </div>
-                    
+                  
                     </div>
                   </CardContent>
                 </Card>
@@ -870,7 +870,7 @@ export default function Index() {
                     
                     <CardContent>
                       <div className="space-y-3">
-                        {categoryDestinations.slice(0, 2).map((destination) => (
+                        {categoryDestinations.slice(0, 4).map((destination) => (
                           <div key={destination.id} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
                             <img 
                               src={destination.images[0]} 
