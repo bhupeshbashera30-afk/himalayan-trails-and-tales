@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Mountain, Utensils, Bed, Heart, Star, Calendar, Users, Phone, Mail, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -71,6 +72,8 @@ export default function Index() {
     special_requirements: ''
   });
   const { toast } = useToast();
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     fetchData();
