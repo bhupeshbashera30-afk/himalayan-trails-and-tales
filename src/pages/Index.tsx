@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Mountain, Utensils, Bed, Heart, Star, Calendar, Users, Phone, Mail, MapPin, Car } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -74,6 +75,45 @@ export default function Index() {
     special_requirements: ''
   });
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
+  const [bookingForm, setBookingForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    travel_dates: '',
+    group_size: 1,
+    budget_range: '',
+    package_id: '',
+    special_requirements: ''
+  });
+
+  const handleBookingSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await supabase.from('bookings_2025_10_14_17_34').insert([bookingForm]);
+      toast({
+        title: "Booking Submitted!",
+        description: "We'll confirm your booking within 24 hours."
+      });
+      setBookingForm({
+        name: '',
+        email: '',
+        phone: '',
+        travel_dates: '',
+        group_size: 1,
+        budget_range: '',
+        package_id: '',
+        special_requirements: ''
+      });
+      setBookingDialogOpen(false);
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to submit booking."
+      });
+    }
+  };
 
   useEffect(() => {
     fetchData();
@@ -81,6 +121,47 @@ export default function Index() {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
+  const handleBookingSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await supabase.from('bookings_2025_10_14_17_34').insert([<Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="lg" className="text-lg px-8 py-6 glass">
+                <Phone className="w-5 h-5 mr-2" />
+                Speak with Expert
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Contact Our Experts</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleContactSubmit} className="space-y-4">
+                <Input placeholder="Name" value={contactForm.name} onChange={(e) => setContactForm(prev => ({...prev, name: e.target.value}))} required />
+                <Input placeholder="Email" type="email" value={contactForm.email} onChange={(e) => setContactForm(prev => ({...prev, email: e.target.value}))} required />
+                <Input placeholder="Phone" value={contactForm.phone} onChange={(e) => setContactForm(prev => ({...prev, phone: e.target.value}))} />
+                <Textarea placeholder="Your question..." value={contactForm.special_requirements} onChange={(e) => setContactForm(prev => ({...prev, special_requirements: e.target.value}))} rows={4} />
+                <Button type="submit" className="w-full">Send</Button>
+              </form>
+            </DialogContent>
+          </Dialog>
+]);
+      toast({ title: "Booking Submitted!", description: "We'll confirm within 24 hours." });
+      setBookingForm({ name: '', email: '', phone: '', travel_dates: '', group_size: 1, budget_range: '', package_id: '', special_requirements: '' });
+      setBookingDialogOpen(false);
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to submit booking.", variant: "destructive" });
+    }
+  };
+
+  const handleShowContact = (type: string) => {
+    if (type === 'email') {
+      navigator.clipboard.writeText('Himalayantrailesandtales@gmail.com');
+      toast({ title: "Email Copied!", description: "Himalayantrailesandtales@gmail.com" });
+    } else if (type === 'phone') {
+      navigator.clipboard.writeText('+91 8630113945');
+      toast({ title: "Phone Copied!", description: "+91 8630113945" });
+    }
+  };
     
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -398,9 +479,13 @@ export default function Index() {
               <Calendar className="w-5 h-5 mr-2" />
               Start Your Journey
             </Button>
-            <Button variant="outline" size="lg" className="text-lg px-8 py-6 glass">
-              <Phone className="w-5 h-5 mr-2" />
-              Speak with Expert
+            <Button variant="outline" size="lg" className="text-lg px-8 py-6 glass"
+           onClick={() => {
+                  navigator.clipboard.writeText('+91 8630113945');
+                  toast({ title: "Phone Copied!", description: "+91 8630113945" });
+                }}>
+            <Phone className="w-5 h-5 mr-2" />
+            Speak with Expert
             </Button>
           </motion.div>
         </div>
@@ -533,22 +618,22 @@ export default function Index() {
             >
               <div className="grid grid-cols-2 gap-4">
                 <img 
-                  src="./images/kedarnath_temple_1.jpeg"
+                  src="/images/kedarnath_temple_1.jpeg"
                   alt="Kedarnath Temple"
                   className="w-full h-48 object-cover rounded-xl shadow-lg"
                 />
                 <img 
-                  src="./images/nanda_devi_peak_20251206_153656.png"
+                  src="/images/nanda_devi_peak_20251206_153656.png"
                   alt="Nanda Devi Peak"
                   className="w-full h-48 object-cover rounded-xl shadow-lg mt-8"
                 />
                 <img 
-                  src="./images/river_rafting_1.jpeg" 
+                  src="/images/river_rafting_1.jpeg" 
                   alt="River Rafting in Rishikesh"
                   className="w-full h-48 object-cover rounded-xl shadow-lg -mt-8"
                 />
                 <img 
-                  src="./images/paragliding_1.jpeg" 
+                  src="/images/paragliding_1.jpeg" 
                   alt="Paragliding Adventure"
                   className="w-full h-48 object-cover rounded-xl shadow-lg"
                 />
@@ -739,10 +824,7 @@ export default function Index() {
                           )}
                         </div>
                       </div>
-                      
-                      <Button className="w-full group-hover:bg-primary-glow transition-colors">
-                        Book This Experience
-                      </Button>
+                    
                     </div>
                   </CardContent>
                 </Card>
@@ -844,11 +926,20 @@ export default function Index() {
                 Your gateway to authentic Pahadi experiences, connecting you with the heart and soul of the Himalayas.
               </p>
               <div className="flex space-x-4">
-                <Button variant="outline" size="sm">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => {
+                    navigator.clipboard.writeText('+91 8630113945');
+                    toast({ title: "Phone Copied!", description: "+91 8630113945" });
+                  }}
+                >     
                   <Phone className="w-4 h-4 mr-2" />
                   Call Us
-                </Button>
-                <Button variant="outline" size="sm">
+                  </Button>
+
+                <Button variant="outline" size="sm"
+                  onClick={() => window.location.href = "mailto:Himalayantrailesandtales@gmail.com"}>
                   <Mail className="w-4 h-4 mr-2" />
                   Email
                 </Button>
