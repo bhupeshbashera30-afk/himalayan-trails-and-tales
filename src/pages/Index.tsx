@@ -467,10 +467,6 @@ export default function Index() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
           >
-            <Button size="lg" className="text-lg px-8 py-6 pulse-glow">
-              <Calendar className="w-5 h-5 mr-2" />
-              Start Your Journey
-            </Button>
             <Button variant="outline" size="lg" className="text-lg px-8 py-6 glass"
            onClick={() => handleShowContact('phone')}>
             <Phone className="w-5 h-5 mr-2" />
@@ -735,11 +731,7 @@ export default function Index() {
               Join us on an unforgettable journey through the mystical Himalayas and experience the magic of Uttarakhand's 
               pristine beauty, rich culture, and spiritual essence.
             </p>
-            <Button size="lg" className="pulse-glow">
-              <Mountain className="w-5 h-5 mr-2" />
-              Start Your Himalayan Adventure
-            </Button>
-          </motion.div>
+            motion.div>
         </div>
       </section>
 
