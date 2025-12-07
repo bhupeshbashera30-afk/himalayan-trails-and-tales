@@ -816,11 +816,7 @@ export default function Index() {
                           )}
                         </div>
                       </div>
-                      
-                      <Button className="w-full group-hover:bg-primary-glow transition-colors"
-                    onClick={() => setBookingDialogOpen(true)}>
-                    Book This Experience
-                    </Button>
+                    
                     </div>
                   </CardContent>
                 </Card>
