@@ -931,6 +931,13 @@ export default function Index() {
                 <div>Contact</div>
               </div>
             </div>
+
+             <div>
+              <h3 className="font-semibold mb-4">Destination</h3>
+              <div className="space-y-2 text-sm text-muted-foreground">
+                <div>Uttrakhand</div>
+              </div>
+            </div>
             
           
             
@@ -954,7 +961,7 @@ export default function Index() {
           </div>
           
           <div className="border-t border-border mt-12 pt-8 text-center text-sm text-muted-foreground">
-            <p>&copy; 2024 Himalayan Trails & Tales. All rights reserved. Crafted with ❤️ for mountain lovers.</p>
+            <p>&copy; 2025 Himalayan Trails & Tales. All rights reserved. Crafted with ❤️ for mountain lovers.</p>
           </div>
         </div>
       </footer>
