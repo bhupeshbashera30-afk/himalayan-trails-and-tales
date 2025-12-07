@@ -467,15 +467,8 @@ export default function Index() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
           >
-            <Button size="lg" className="text-lg px-8 py-6 pulse-glow">
-              <Calendar className="w-5 h-5 mr-2" />
-              Start Your Journey
-            </Button>
             <Button variant="outline" size="lg" className="text-lg px-8 py-6 glass"
-           onClick={() => {
-                  navigator.clipboard.writeText('+91 8630113945');
-                  toast({ title: "Phone Copied!", description: "+91 8630113945" });
-                }}>
+           onClick={() => handleShowContact('phone')}>
             <Phone className="w-5 h-5 mr-2" />
             Speak with Expert
             </Button>
@@ -738,11 +731,7 @@ export default function Index() {
               Join us on an unforgettable journey through the mystical Himalayas and experience the magic of Uttarakhand's 
               pristine beauty, rich culture, and spiritual essence.
             </p>
-            <Button size="lg" className="pulse-glow">
-              <Mountain className="w-5 h-5 mr-2" />
-              Start Your Himalayan Adventure
-            </Button>
-          </motion.div>
+            motion.div>
         </div>
       </section>
 
@@ -816,7 +805,7 @@ export default function Index() {
                           )}
                         </div>
                       </div>
-                  
+                    git checkout main
                     </div>
                   </CardContent>
                 </Card>
@@ -916,10 +905,7 @@ export default function Index() {
                 <Button 
                   variant="outline" 
                   size="sm"
-                  onClick={() => {
-                    navigator.clipboard.writeText('+91 8630113945');
-                    toast({ title: "Phone Copied!", description: "+91 8630113945" });
-                  }}
+                  onClick={() => handleShowContact('phone')}}
                 >     
                   <Phone className="w-4 h-4 mr-2" />
                   Call Us
