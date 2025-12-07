@@ -227,6 +227,10 @@ export default function Index() {
     }));
   };
 
+  function handleShowContact(arg0: string): void {
+    throw new Error('Function not implemented.');
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-card">
       {/* Navigation */}
@@ -467,11 +471,11 @@ export default function Index() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
           >
-            <Button variant="outline" size="lg" className="text-lg px-8 py-6 glass"
-           onClick={() => handleShowContact('phone')}>
-            <Phone className="w-5 h-5 mr-2" />
-            Speak with Expert
-            </Button>
+          <Button variant="outline" size="lg" className="text-lg px-8 py-6 glass"
+                     onClick={() => handleShowContact('phone')}>
+                      <Phone className="w-5 h-5 mr-2" />
+                      Speak with Expert
+          </Button>
           </motion.div>
         </div>
 
@@ -731,7 +735,7 @@ export default function Index() {
               Join us on an unforgettable journey through the mystical Himalayas and experience the magic of Uttarakhand's 
               pristine beauty, rich culture, and spiritual essence.
             </p>
-            motion.div>
+          </motion.div>
         </div>
       </section>
 
@@ -905,11 +909,10 @@ export default function Index() {
                 <Button 
                   variant="outline" 
                   size="sm"
-                  onClick={() => handleShowContact('phone')}}
-                >     
+                  onClick={() => handleShowContact('phone')}>
                   <Phone className="w-4 h-4 mr-2" />
                   Call Us
-                  </Button>
+                </Button>
 
                 <Button variant="outline" size="sm"
                   onClick={() => window.location.href = "mailto:Himalayantrailesandtales@gmail.com"}>
