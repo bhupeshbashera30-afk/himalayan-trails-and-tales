@@ -816,7 +816,7 @@ export default function Index() {
                           )}
                         </div>
                       </div>
-                    git checkout main
+                    
                     </div>
                   </CardContent>
                 </Card>
