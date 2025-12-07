@@ -434,7 +434,7 @@ export default function Index() {
 
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-background via-card to-background opacity-90" />
+        <div className="absolute inset-0 bg-gradient-to-br from-background via-card to-background opacity-95" />
         <div className="absolute inset-0">
           <img 
             src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&h=1080&fit=crop" 
