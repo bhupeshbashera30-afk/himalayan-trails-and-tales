@@ -279,7 +279,7 @@ export default function Index() {
                             <div className="text-sm text-muted-foreground mb-3">
                               {category.description}
                             </div>
-                            {getDestinationsByCategory(category.id).slice(0, 4).map((destination) => (
+                            {getDestinationsByCategory(category.id).slice(0, 2).map((destination) => (
                               <div key={destination.id} className="flex items-start space-x-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
                                 <img 
                                   src={destination.images[0]} 
