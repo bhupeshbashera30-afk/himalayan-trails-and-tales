@@ -609,7 +609,7 @@ export default function Index() {
                 <img 
                   src="/images/kedarnath_temple_1.jpeg"
                   alt="Kedarnath Temple"
-                  className="w-full h-48 object-cover rounded-xl shadow-lg"
+                  className="w-full h-48 object-cover rounded-xl shadow- onError={(e) => e.currentTarget.src = `https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop&q=80`}lg"
                 />
                 <img 
                   src="/images/nanda_devi_peak_20251206_153656.png"
