@@ -273,10 +273,10 @@ export default function Index() {
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: 10, scale: 0.95 }}
                           transition={{ duration: 0.2 }}
-                          className="absolute top-full left-0 mt-2 w-80 glass rounded-xl p-4 shadow-2xl"
+                          className="absolute top-full left-0 mt-2 w-80 bg-white/90 backdrop-blur-md rounded-xl p-4 shadow-2xl"
                         >
                           <div className="space-y-3">
-                            <div className="text-sm text-muted-foreground mb-3">
+                            <div className="text-sm text-gray-700 mb-3">
                               {category.description}
                             </div>
                             {getDestinationsByCategory(category.id).slice(0, 2).map((destination) => (
@@ -288,7 +288,7 @@ export default function Index() {
                                 />
                                 <div className="flex-1">
                                   <div className="font-medium text-sm">{destination.name}</div>
-                                  <div className="text-xs text-muted-foreground">{destination.location}</div>
+                                  <div className="text-xs text-gray-700">{destination.location}</div>
                                   <div className="text-xs text-primary font-medium">{destination.price_range}</div>
                                 </div>
                                 <div className="flex items-center space-x-1">
@@ -456,7 +456,7 @@ export default function Index() {
           </motion.h1>
           
           <motion.p 
-            className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed"
+            className="text-xl md:text-2xl text-gray-700 mb-8 max-w-3xl mx-auto leading-relaxed"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
@@ -498,7 +498,7 @@ export default function Index() {
             <h2 className="font-serif text-4xl md:text-5xl font-bold mb-4 gradient-text">
               The Majestic Himalayas
             </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            <p className="text-xl text-gray-700 max-w-3xl mx-auto">
               Discover the crown jewel of India - Uttarakhand, where ancient traditions meet breathtaking landscapes
             </p>
           </motion.div>
@@ -525,23 +525,23 @@ export default function Index() {
               className="space-y-6"
             >
               <h3 className="font-serif text-3xl font-bold">The Roof of the World</h3>
-              <p className="text-lg text-muted-foreground leading-relaxed">
+              <p className="text-lg text-gray-700 leading-relaxed">
                 The Himalayas, meaning "abode of snow" in Sanskrit, stretch across five countries and house the world's highest peaks. 
                 This magnificent mountain range is not just a geographical wonder but a spiritual sanctuary that has inspired countless souls 
                 for millennia.
               </p>
-              <p className="text-lg text-muted-foreground leading-relaxed">
+              <p className="text-lg text-gray-700 leading-relaxed">
                 From the towering peaks of Nanda Devi to the serene valleys of Garhwal, the Himalayas offer an unparalleled experience 
                 of natural beauty, adventure, and spiritual awakening. Every trail tells a story, every peak holds a legend.
               </p>
               <div className="grid grid-cols-2 gap-4 pt-4">
                 <div className="text-center p-4 glass rounded-lg">
                   <div className="text-2xl font-bold text-primary">7,817m</div>
-                  <div className="text-sm text-muted-foreground">Nanda Devi Peak</div>
+                  <div className="text-sm text-gray-700">Nanda Devi Peak</div>
                 </div>
                 <div className="text-center p-4 glass rounded-lg">
                   <div className="text-2xl font-bold text-primary">2,400km</div>
-                  <div className="text-sm text-muted-foreground">Mountain Range Length</div>
+                  <div className="text-sm text-gray-700">Mountain Range Length</div>
                 </div>
               </div>
             </motion.div>
@@ -557,11 +557,11 @@ export default function Index() {
               className="space-y-6 order-2 lg:order-1"
             >
               <h3 className="font-serif text-3xl font-bold">Uttarakhand - Dev Bhoomi</h3>
-              <p className="text-lg text-muted-foreground leading-relaxed">
+              <p className="text-lg text-gray-700 leading-relaxed">
                 Known as "Dev Bhoomi" (Land of Gods), Uttarakhand is the spiritual heart of India. This enchanting state is home to 
                 the sacred Char Dham pilgrimage sites, pristine hill stations, and some of the most spectacular trekking routes in the world.
               </p>
-              <p className="text-lg text-muted-foreground leading-relaxed">
+              <p className="text-lg text-gray-700 leading-relaxed">
                 From the yoga capital Rishikesh to the queen of hills Mussoorie, from the spiritual Haridwar to the adventure hub 
                 Auli, Uttarakhand offers diverse experiences that cater to every traveler's soul.
               </p>
@@ -571,28 +571,28 @@ export default function Index() {
                   <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
                   <div>
                     <h4 className="font-semibold">Sacred Pilgrimage Sites</h4>
-                    <p className="text-sm text-muted-foreground">Kedarnath, Badrinath, Gangotri, and Yamunotri - the revered Char Dham</p>
+                    <p className="text-sm text-gray-700">Kedarnath, Badrinath, Gangotri, and Yamunotri - the revered Char Dham</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
                   <div>
                     <h4 className="font-semibold">Adventure Paradise</h4>
-                    <p className="text-sm text-muted-foreground">World-class trekking, river rafting, skiing, and mountaineering</p>
+                    <p className="text-sm text-gray-700">World-class trekking, river rafting, skiing, and mountaineering</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
                   <div>
                     <h4 className="font-semibold">Rich Cultural Heritage</h4>
-                    <p className="text-sm text-muted-foreground">Ancient temples, traditional festivals, and warm Pahadi hospitality</p>
+                    <p className="text-sm text-gray-700">Ancient temples, traditional festivals, and warm Pahadi hospitality</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
                   <div>
                     <h4 className="font-semibold">Biodiversity Hotspot</h4>
-                    <p className="text-sm text-muted-foreground">Home to rare flora, fauna, and pristine national parks</p>
+                    <p className="text-sm text-gray-700">Home to rare flora, fauna, and pristine national parks</p>
                   </div>
                 </div>
               </div>
@@ -640,7 +640,7 @@ export default function Index() {
           >
             <div className="text-center mb-12">
               <h3 className="font-serif text-3xl font-bold mb-4 gradient-text">Rich Historical Heritage</h3>
-              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              <p className="text-xl text-gray-700 max-w-3xl mx-auto">
                 Uttarakhand's history spans millennia, from ancient Vedic civilizations to modern statehood
               </p>
             </div>
@@ -648,7 +648,7 @@ export default function Index() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               <div className="glass p-6 rounded-xl">
                 <h4 className="font-serif text-xl font-bold mb-3">Ancient Era (Vedic Period)</h4>
-                <p className="text-muted-foreground text-sm leading-relaxed">
+                <p className="text-gray-700 text-sm leading-relaxed">
                   Known as "Kedarkhand" and "Manaskhand" in ancient texts, this region finds mention in the Skanda Purana and Mahabharata. 
                   The Pandavas are believed to have traveled through these mountains on their final journey to heaven.
                 </p>
@@ -656,7 +656,7 @@ export default function Index() {
 
               <div className="glass p-6 rounded-xl">
                 <h4 className="font-serif text-xl font-bold mb-3">Medieval Period (8th-18th Century)</h4>
-                <p className="text-muted-foreground text-sm leading-relaxed">
+                <p className="text-gray-700 text-sm leading-relaxed">
                   The Katyuri dynasty (7th-11th century) established the first major kingdom. Later, the Chand dynasty ruled Kumaon 
                   while the Panwar dynasty controlled Garhwal, creating a rich tapestry of hill culture and architecture.
                 </p>
@@ -664,7 +664,7 @@ export default function Index() {
 
               <div className="glass p-6 rounded-xl">
                 <h4 className="font-serif text-xl font-bold mb-3">British Era (1815-1947)</h4>
-                <p className="text-muted-foreground text-sm leading-relaxed">
+                <p className="text-gray-700 text-sm leading-relaxed">
                   After the Anglo-Nepalese War, the British established hill stations like Mussoorie, Nainital, and Almora. 
                   The region became a summer retreat for British officials and contributed significantly to India's freedom struggle.
                 </p>
@@ -672,7 +672,7 @@ export default function Index() {
 
               <div className="glass p-6 rounded-xl">
                 <h4 className="font-serif text-xl font-bold mb-3">Modern Uttarakhand (2000-Present)</h4>
-                <p className="text-muted-foreground text-sm leading-relaxed">
+                <p className="text-gray-700 text-sm leading-relaxed">
                   Carved out from Uttar Pradesh on November 9, 2000, Uttarakhand became India's 27th state. The movement for statehood 
                   was driven by the unique cultural identity and development needs of the hill regions.
                 </p>
@@ -680,7 +680,7 @@ export default function Index() {
 
               <div className="glass p-6 rounded-xl">
                 <h4 className="font-serif text-xl font-bold mb-3">Cultural Legacy</h4>
-                <p className="text-muted-foreground text-sm leading-relaxed">
+                <p className="text-gray-700 text-sm leading-relaxed">
                   Home to 108 ancient temples, traditional folk dances like Langvir Nritya, and festivals such as Nanda Devi Raj Jat. 
                   The region preserves age-old traditions of wood carving, woolen crafts, and organic farming practices.
                 </p>
@@ -688,7 +688,7 @@ export default function Index() {
 
               <div className="glass p-6 rounded-xl">
                 <h4 className="font-serif text-xl font-bold mb-3">Spiritual Significance</h4>
-                <p className="text-muted-foreground text-sm leading-relaxed">
+                <p className="text-gray-700 text-sm leading-relaxed">
                   Birthplace of the Ganges and Yamuna rivers, home to ancient ashrams where sages meditated. Rishikesh is known as the 
                   "Yoga Capital of the World," attracting spiritual seekers from across the globe for centuries.
                 </p>
@@ -706,19 +706,19 @@ export default function Index() {
           >
             <div className="text-center p-6 glass rounded-xl">
               <div className="text-3xl font-bold text-primary mb-2">13</div>
-              <div className="text-sm text-muted-foreground">Districts</div>
+              <div className="text-sm text-gray-700">Districts</div>
             </div>
             <div className="text-center p-6 glass rounded-xl">
               <div className="text-3xl font-bold text-primary mb-2">53,483</div>
-              <div className="text-sm text-muted-foreground">Sq Km Area</div>
+              <div className="text-sm text-gray-700">Sq Km Area</div>
             </div>
             <div className="text-center p-6 glass rounded-xl">
               <div className="text-3xl font-bold text-primary mb-2">12</div>
-              <div className="text-sm text-muted-foreground">National Parks</div>
+              <div className="text-sm text-gray-700">National Parks</div>
             </div>
             <div className="text-center p-6 glass rounded-xl">
               <div className="text-3xl font-bold text-primary mb-2">7,817m</div>
-              <div className="text-sm text-muted-foreground">Nanda Devi Peak</div>
+              <div className="text-sm text-gray-700">Nanda Devi Peak</div>
             </div>
           </motion.div>
 
@@ -731,7 +731,7 @@ export default function Index() {
             className="text-center mt-16"
           >
             <h3 className="font-serif text-2xl font-bold mb-4">Ready to Explore the Divine Land?</h3>
-            <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
+            <p className="text-gray-700 mb-6 max-w-2xl mx-auto">
               Join us on an unforgettable journey through the mystical Himalayas and experience the magic of Uttarakhand's 
               pristine beauty, rich culture, and spiritual essence.
             </p>
@@ -752,7 +752,7 @@ export default function Index() {
             <h2 className="font-serif text-4xl md:text-5xl font-bold mb-4 gradient-text">
               Curated Experiences
             </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-xl text-gray-700 max-w-2xl mx-auto">
               Handpicked packages that showcase the best of Pahadi culture, adventure, and serenity
             </p>
           </motion.div>
@@ -791,7 +791,7 @@ export default function Index() {
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
                         <span className="text-2xl font-bold text-primary">₹{pkg.price.toLocaleString()}</span>
-                        <span className="text-sm text-muted-foreground">per person</span>
+                        <span className="text-sm text-gray-700">per person</span>
                       </div>
                       
                       <div className="space-y-2">
@@ -832,7 +832,7 @@ export default function Index() {
             <h2 className="font-serif text-4xl md:text-5xl font-bold mb-4 gradient-text">
               Explore Every Facet
             </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-xl text-gray-700 max-w-2xl mx-auto">
               From authentic flavors to thrilling adventures, discover what makes the Pahadi experience truly special
             </p>
           </motion.div>
@@ -872,7 +872,7 @@ export default function Index() {
                             />
                             <div className="flex-1">
                               <div className="font-medium text-sm">{destination.name}</div>
-                              <div className="text-xs text-muted-foreground">{destination.location}</div>
+                              <div className="text-xs text-gray-700">{destination.location}</div>
                             </div>
                             <div className="flex items-center space-x-1">
                               <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
@@ -902,7 +902,7 @@ export default function Index() {
               <div className="font-serif text-2xl font-bold gradient-text mb-4">
                 Himalayan Trails & Tails
               </div>
-              <p className="text-muted-foreground mb-4">
+              <p className="text-gray-700 mb-4">
                 Your gateway to authentic Pahadi experiences, connecting you with the heart and soul of the Himalayas.
               </p>
               <div className="flex space-x-4">
@@ -924,7 +924,7 @@ export default function Index() {
             
             <div>
               <h3 className="font-semibold mb-4">Quick Links</h3>
-              <div className="space-y-2 text-sm text-muted-foreground">
+              <div className="space-y-2 text-sm text-gray-700">
                 <div>About Us</div>
                 <div>Our Services</div>
                 <div>Travel Packages</div>
@@ -934,7 +934,7 @@ export default function Index() {
 
              <div>
               <h3 className="font-semibold mb-4">Destination</h3>
-              <div className="space-y-2 text-sm text-muted-foreground">
+              <div className="space-y-2 text-sm text-gray-700">
                 <div>Uttrakhand</div>
               </div>
             </div>
@@ -943,7 +943,7 @@ export default function Index() {
             
             <div>
               <h3 className="font-semibold mb-4">Contact Info</h3>
-              <div className="space-y-2 text-sm text-muted-foreground">
+              <div className="space-y-2 text-sm text-gray-700">
                 <div className="flex items-center space-x-2">
                   <MapPin className="w-4 h-4" />
                   <span>Haldwani , Uttarakhand</span>
@@ -960,7 +960,7 @@ export default function Index() {
             </div>
           </div>
           
-          <div className="border-t border-border mt-12 pt-8 text-center text-sm text-muted-foreground">
+          <div className="border-t border-border mt-12 pt-8 text-center text-sm text-gray-700">
             <p>&copy; 2025 Himalayan Trails & Tales. All rights reserved. Crafted with ❤️ for mountain lovers.</p>
           </div>
         </div>
