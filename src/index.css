@@ -184,3 +184,19 @@
     100% { left: 100%; }
   }
 }
+
+/* Force dropdown menu to have solid black background */
+[role="menu"],
+[role="listbox"],
+.dropdown-menu,
+[data-radix-dropdown-menu-content] {
+  background-color: #000000 !important;
+  background: #000000 !important;
+  opacity: 1 !important;
+}
+
+/* Override popover background for dropdown */
+[data-radix-popover-content],
+[data-radix-dropdown-menu-content] {
+  background-color: #000000 !important;
+}
