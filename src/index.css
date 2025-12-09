@@ -200,3 +200,32 @@
 [data-radix-dropdown-menu-content] {
   background-color: #000000 !important;
 }
+
+
+/* ABSOLUTE FIX: Target Radix UI dropdown divs directly */
+div[role='menu'],
+div[data-radix-dropdown-menu-content],
+[role='menu'] > div,
+[data-radix-dropdown-menu-content] {
+  background-color: #000000 !important;
+  background: #000000 !important;
+  color: #ffffff !important;
+}
+
+/* Force all dropdown items to be visible */
+div[role='menu'] > div > div,
+[data-radix-dropdown-menu-content] > div {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+/* Target all divs that might be rendering the dropdown */
+[role='menu'],
+[role='listbox'],
+[class*='dropdown'],
+[class*='popover'] {
+  background: #000000 !important !important !important;
+  background-color: #000000 !important !important !important;
+  opacity: 1 !important;
+  color: white !important;
+}
