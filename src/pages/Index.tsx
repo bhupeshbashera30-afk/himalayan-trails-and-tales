@@ -275,7 +275,7 @@ export default function Index() {
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: 10, scale: 0.95 }}
                           transition={{ duration: 0.2 }}
-                          className="absolute top-full left-0 mt-2 w-80 glass rounded-xl p-4 shadow-2xl"
+                          className="absolute top-full left-0 mt-2 w-80 bg-card rounded-xl p-4 shadow-2xl"
                         >
                           <div className="space-y-3">
                             <div className="text-sm text-muted-foreground mb-3">
