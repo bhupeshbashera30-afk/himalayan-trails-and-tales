@@ -57,6 +57,21 @@ const iconMap = {
   heart: Heart,
 };
 
+    // Helper function to safely get the first image from destination
+const getFirstImage = (images: string | string[] | null): string => {
+  if (!images) return '';
+  if (typeof images === 'string') {
+    try {
+      const parsed = JSON.parse(images);
+      return Array.isArray(parsed) && parsed.length > 0 ? parsed[0] : '';
+    } catch {
+      return images;
+    }
+  }
+  return Array.isArray(images) && images.length > 0 ? images[0] : '';
+};
+
+
 export default function Index() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [destinations, setDestinations] = useState<Destination[]>([]);
@@ -284,7 +299,7 @@ export default function Index() {
                             {getDestinationsByCategory(category.id).slice(0, 2).map((destination) => (
                               <div key={destination.id} className="flex items-start space-x-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
                                 <img 
-                                  src={destination.images[0]} 
+                                  src={getFirstImage(destination.images)} 
                                   alt={destination.name}
                                   className="w-12 h-12 rounded-lg object-cover"
                                 />
@@ -771,7 +786,7 @@ export default function Index() {
                 <Card className="group hover:shadow-2xl transition-all duration-500 overflow-glass">
                   <div className="relative overflow-hidden">
                     <img 
-                      src={pkg.images[0]} 
+                      src={getFirstImage(pkg.images)} 
                       alt={pkg.name}
                       className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700"
                     />
@@ -868,7 +883,7 @@ export default function Index() {
                         {categoryDestinations.slice(0, 4).map((destination) => (
                           <div key={destination.id} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
                             <img 
-                              src={destination.images[0]} 
+                              src={getFirstImage(destination.images)} 
                               alt={destination.name}
                               className="w-10 h-10 rounded-lg object-cover"
                             />
