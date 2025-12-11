@@ -38,6 +38,21 @@ const iconMap: { [key: string]: any } = {
   car: Car,
 };
 
+// Helper function to safely get the first image from destination
+const getFirstImage = (images: string | string[] | null): string => {
+  if (!images) return '';
+  if (typeof images === 'string') {
+    try {
+      const parsed = JSON.parse(images);
+      return Array.isArray(parsed) && parsed.length > 0 ? parsed[0] : '';
+    } catch {
+      return images;
+    }
+  }
+  return Array.isArray(images) && images.length > 0 ? images[0] : '';
+};
+
+
 export default function CategoryPage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
@@ -196,7 +211,7 @@ export default function CategoryPage() {
               <Card className="group hover:shadow-2xl transition-all duration-500 overflow-hidden glass h-full flex flex-col">
                 <div className="relative overflow-hidden">
                   <img
-                    src={destination.images[0]}
+                    src={getFirstImage(destination.images)}
                     alt={destination.name}
                     className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700"
                   />

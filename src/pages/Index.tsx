@@ -57,6 +57,21 @@ const iconMap: { [key: string]: any } = {
   car: Car,
 };
 
+    // Helper function to safely get the first image from destination
+const getFirstImage = (images: string | string[] | null): string => {
+  if (!images) return '';
+  if (typeof images === 'string') {
+    try {
+      const parsed = JSON.parse(images);
+      return Array.isArray(parsed) && parsed.length > 0 ? parsed[0] : '';
+    } catch {
+      return images;
+    }
+  }
+  return Array.isArray(images) && images.length > 0 ? images[0] : '';
+};
+
+
 export default function Index() {
   const navigate = useNavigate();
   const [categories, setCategories] = useState<Category[]>([]);
@@ -251,7 +266,7 @@ export default function Index() {
               Himalayan Trails & Tales
             </motion.div>
 
-            <div className="hidden md:flex items-center space-x-8">
+            <div className="md:flex items-center space-x-8">
               {categories.map((category) => {
                 const IconComponent = iconMap[category.icon as keyof typeof iconMap] || Mountain;
                 return (
@@ -276,7 +291,7 @@ export default function Index() {
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: 10, scale: 0.95 }}
                           transition={{ duration: 0.2 }}
-                          className="absolute top-full left-0 mt-2 w-80 glass rounded-xl p-4 shadow-2xl"
+                          className="absolute top-full left-0 mt-2 w-80 bg-card rounded-xl p-4 shadow-2xl"
                         >
                           <div className="space-y-3">
                             <div className="text-sm text-muted-foreground mb-3">
@@ -285,7 +300,7 @@ export default function Index() {
                             {getDestinationsByCategory(category.id).slice(0, 2).map((destination) => (
                               <div key={destination.id} className="flex items-start space-x-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
                                 <img 
-                                  src={destination.images[0]} 
+                                  src={getFirstImage(destination.images)} 
                                   alt={destination.name}
                                   className="w-12 h-12 rounded-lg object-cover"
                                 />
@@ -612,7 +627,7 @@ export default function Index() {
                 <img 
                   src="/images/kedarnath_temple_1.jpeg"
                   alt="Kedarnath Temple"
-                  className="w-full h-48 object-cover rounded-xl shadow-lg"
+                  className="w-full h-48 object-cover rounded-xl shadow- onError={(e) => e.currentTarget.src = `https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop&q=80`}lg"
                 />
                 <img 
                   src="/images/nanda_devi_peak_20251206_153656.png"
@@ -769,10 +784,10 @@ export default function Index() {
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <Card className="group hover:shadow-2xl transition-all duration-500 overflow-hidden glass">
+                <Card className="group hover:shadow-2xl transition-all duration-500 overflow-glass">
                   <div className="relative overflow-hidden">
                     <img 
-                      src={pkg.images[0]} 
+                      src={getFirstImage(pkg.images)} 
                       alt={pkg.name}
                       className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700"
                     />
@@ -866,10 +881,10 @@ export default function Index() {
                     
                     <CardContent>
                       <div className="space-y-3">
-                        {categoryDestinations.slice(0, 2).map((destination) => (
+                        {categoryDestinations.slice(0, 4).map((destination) => (
                           <div key={destination.id} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
                             <img 
-                              src={destination.images[0]} 
+                              src={getFirstImage(destination.images)} 
                               alt={destination.name}
                               className="w-10 h-10 rounded-lg object-cover"
                             />
@@ -963,8 +978,7 @@ export default function Index() {
             </div>
           </div>
           
-          <div className="border-t border-border mt-12 pt-8 text-center text-sm text-muted-foreground">
-            <p>&copy; 2025 Himalayan Trails & Tales. All rights reserved. Crafted with ❤️ for mountain lovers.</p>
+          <div className="border-t border-border mt-12 pt-8 text-center text-sm text-muted-foreground">            <p>&copy; 2025 Himalayan Trails & Tales. All rights reserved. Crafted with ❤️ for mountain lovers.</p>
           </div>
         </div>
       </footer>
