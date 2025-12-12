@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getFirstImage } from "../lib/utils";
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ChevronLeft, Star, Calendar, Users, MapPin, Mountain, Utensils, Bed, Heart, Car } from 'lucide-react';
@@ -37,21 +38,6 @@ const iconMap: { [key: string]: any } = {
   heart: Heart,
   car: Car,
 };
-
-// Helper function to safely get the first image from destination
-const getFirstImage = (images: string | string[] | null): string => {
-  if (!images) return '';
-  if (typeof images === 'string') {
-    try {
-      const parsed = JSON.parse(images);
-      return Array.isArray(parsed) && parsed.length > 0 ? parsed[0] : '';
-    } catch {
-      return images;
-    }
-  }
-  return Array.isArray(images) && images.length > 0 ? images[0] : '';
-};
-
 
 export default function CategoryPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -200,28 +186,36 @@ export default function CategoryPage() {
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {destinations.map((destination, index) => (
-            <motion.div
-              key={destination.id}
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-transition={{ duration: 0.6 }}            >
-              <Card className="group hover:shadow-2xl transition-all duration-500 overflow-hidden glass h-full flex flex-col">
-                <div className="relative overflow-hidden">
-                  <img
-                    src={getFirstImage(destination.images)}
-                    alt={destination.name}
-                    className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700"
-                  />
-                  <div className="absolute top-4 right-4">
-                    <Badge className="bg-primary text-primary-foreground flex items-center space-x-1">
-                      <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                      <span>{destination.rating}</span>
-                    </Badge>
-                  </div>
-                </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+  {destinations.map((destination, index) => (
+    <motion.div
+      key={destination.id}
+      initial={{ opacity: 0, y: 50 }}
+      whileInView={{ opacity: 1, y: 0 }} // Improved animation trigger
+      viewport={{ once: true }}          // Crucial for performance
+      transition={{ duration: 0.6, delay: index * 0.1 }}
+    >
+      <Card className="group hover:shadow-2xl transition-all duration-500 overflow-hidden glass h-full flex flex-col transform-gpu">
+        <div className="relative overflow-hidden h-64"> 
+          
+          <img
+            // WE REQUEST 600px HERE (High Quality for big card)
+            src={getFirstImage(destination.images, 600)} 
+            alt={destination.name}
+            
+            decoding="async"
+            loading="lazy"
+            
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 bg-white/10"
+          />
 
+          <div className="absolute top-4 right-4">
+             <Badge className="bg-primary text-primary-foreground flex items-center space-x-1">
+                <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                <span>{destination.rating}</span>
+             </Badge>
+          </div>
+        </div>
                 <CardHeader>
                   <CardTitle className="font-serif text-2xl">{destination.name}</CardTitle>
                   <CardDescription className="flex items-center space-x-1 text-sm">
