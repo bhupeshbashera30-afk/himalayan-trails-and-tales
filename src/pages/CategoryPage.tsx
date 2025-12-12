@@ -182,7 +182,7 @@ export default function CategoryPage() {
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
           className="mb-12"
         >
           <div className="flex items-center space-x-4 mb-4">
