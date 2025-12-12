@@ -855,7 +855,7 @@ export default function Index() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {categories.map((category, index) => {
               const IconComponent = iconMap[category.icon as keyof typeof iconMap] || Mountain;
               const categoryDestinations = getDestinationsByCategory(category.id);
@@ -881,7 +881,7 @@ export default function Index() {
                     
                     <CardContent>
                       <div className="space-y-3">
-                        {categoryDestinations.slice(0, 4).map((destination) => (
+                        {categoryDestinations.slice(0, 3).map((destination) => (
                           <div key={destination.id} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
                             <img 
                               src={getFirstImage(destination.images)} 

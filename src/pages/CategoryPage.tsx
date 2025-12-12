@@ -182,7 +182,7 @@ export default function CategoryPage() {
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
           className="mb-12"
         >
           <div className="flex items-center space-x-4 mb-4">
@@ -200,14 +200,13 @@ export default function CategoryPage() {
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {destinations.map((destination, index) => (
             <motion.div
               key={destination.id}
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-            >
+transition={{ duration: 0.6 }}            >
               <Card className="group hover:shadow-2xl transition-all duration-500 overflow-hidden glass h-full flex flex-col">
                 <div className="relative overflow-hidden">
                   <img
