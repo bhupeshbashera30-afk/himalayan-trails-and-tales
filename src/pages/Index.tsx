@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getFirstImage } from '../lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Mountain, Utensils, Bed, Heart, Star, Calendar, Users, Phone, Mail, MapPin } from 'lucide-react';
@@ -55,20 +56,7 @@ const iconMap = {
   heart: Heart,
 };
 
-    // Helper function to safely get the first image from destination
-const getFirstImage = (images: string | string[] | null): string => {
-  if (!images) return '';
-  if (typeof images === 'string') {
-    try {
-      const parsed = JSON.parse(images);
-      return Array.isArray(parsed) && parsed.length > 0 ? parsed[0] : '';
-    } catch {
-      return images;
-    }
-  }
-  return Array.isArray(images) && images.length > 0 ? images[0] : '';
-};
-
+ 
 
 export default function Index() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -877,24 +865,32 @@ export default function Index() {
                     </CardHeader>
                     
                     <CardContent>
-                      <div className="space-y-3">
-                        {categoryDestinations.slice(0, 3).map((destination) => (
-                          <div key={destination.id} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
-                            <img 
-                              src={getFirstImage(destination.images)} 
-                              alt={destination.name}
-                              className="w-10 h-10 rounded-lg object-cover"
-                            />
-                            <div className="flex-1">
-                              <div className="font-medium text-sm">{destination.name}</div>
-                              <div className="text-xs text-muted-foreground">{destination.location}</div>
-                            </div>
-                            <div className="flex items-center space-x-1">
-                              <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                              <span className="text-xs">{destination.rating}</span>
-                            </div>
-                          </div>
-                        ))}
+                     <div className="space-y-3">
+    {categoryDestinations.slice(0, 3).map((destination) => (
+      <div key={destination.id} className="flex items-center space-x-3 ...">
+        
+        {/* USAGE: Standard <img> tag optimized for Vite */}
+        <img
+          src={getFirstImage(destination.images)} // Uses default 100px width
+          alt={destination.name}
+          decoding="async"
+          loading="lazy"
+          width={40}
+          height={40}
+          className="w-10 h-10 rounded-lg object-cover bg-white/10"
+        />
+
+      <div className="flex-1">
+        <div className="font-medium text-sm">{destination.name}</div>
+        <div className="text-xs text-muted-foreground">{destination.location}</div>
+      </div>
+      
+      <div className="flex items-center space-x-1">
+        <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+        <span className="text-xs">{destination.rating}</span>
+      </div>
+    </div>
+  ))}
                         
                         <Button variant="outline" size="sm" className="w-full mt-4" onClick={() => navigate(`/category/${category.slug}`)}>
                           Explore {category.name}
