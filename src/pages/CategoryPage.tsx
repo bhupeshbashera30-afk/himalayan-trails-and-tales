@@ -97,9 +97,14 @@ export default function CategoryPage() {
  e.preventDefault();
  try {
  const { error } = await supabase
- .from('contact_submissions_2025_10_14_17_34')
+ .from('bookings_2025_10_14_17_34')
  .insert([{
- ...bookingForm,
+ guest_name: bookingForm.name,
+ guest_email: bookingForm.email,
+ guest_phone: bookingForm.phone,
+ travel_date: bookingForm.travel_dates,
+ group_size: bookingForm.group_size,
+ special_requests: bookingForm.special_requirements,
  }]);
 
  if (error) throw error;
