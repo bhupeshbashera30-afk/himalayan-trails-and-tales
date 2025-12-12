@@ -988,12 +988,20 @@ const copyToClipboard = () => {
               </p>
               <div className="flex space-x-4">
                 <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => handleShowContact('phone')}>
-                  <Phone className="w-4 h-4 mr-2" />
-                  Call Us
-                </Button>
+  variant="outline" 
+  size="sm" 
+  onClick={handleSmartContact} // Reusing the same smart handler
+>
+  {/* Toggle Icon: Checkmark if copied, Phone otherwise */}
+  {isCopied ? (
+    <Check className="w-4 h-4 mr-2 text-green-500" />
+  ) : (
+    <Phone className="w-4 h-4 mr-2" />
+  )}
+
+  {/* Toggle Text: "Copied!" or "Call Us" */}
+  {isCopied ? "Copied!" : "Call Us"}
+</Button>
 
                 <Button variant="outline" size="sm"
                   onClick={() => window.location.href = "mailto:Himalayantrailesandtales@gmail.com"}>
