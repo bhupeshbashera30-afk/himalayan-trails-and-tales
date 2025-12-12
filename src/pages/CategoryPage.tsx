@@ -100,8 +100,6 @@ export default function CategoryPage() {
  .from('contact_submissions_2025_10_14_17_34')
  .insert([{
  ...bookingForm,
- destination_id: selectedDestination?.id,
- category_id: category?.id
  }]);
 
  if (error) throw error;
