@@ -105,6 +105,8 @@ export default function CategoryPage() {
  travel_date: bookingForm.travel_dates,
  group_size: bookingForm.group_size,
  special_requests: bookingForm.special_requirements,
+   destination_id: selectedDestination?.id,
+ category_id: category?.id,
  }]);
 
  if (error) throw error;
