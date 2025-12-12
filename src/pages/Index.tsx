@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getFirstImage } from '../lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Mountain, Utensils, Bed, Heart, Star, Calendar, Users, Phone, Mail, MapPin } from 'lucide-react';
+import { Phone, Copy, Check, ChevronDown, Mountain, Utensils, Bed, Heart, Star, Calendar, Users, Mail, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -59,6 +59,26 @@ const iconMap = {
  
 
 export default function Index() {
+  const [isCopied, setIsCopied] = useState(false);
+const [showMobileMenu, setShowMobileMenu] = useState(false);
+const phoneNumber = "+918630113945"; // Your updated number
+
+const handleSmartContact = () => {
+  // Check if mobile
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  if (isMobile) {
+    setShowMobileMenu(true); // Open menu on mobile
+  } else {
+    copyToClipboard(); // Copy directly on Windows/Desktop
+  }
+};
+
+const copyToClipboard = () => {
+  navigator.clipboard.writeText(phoneNumber);
+  setIsCopied(true);
+  setTimeout(() => setIsCopied(false), 2000);
+  setShowMobileMenu(false);
+};
   const [categories, setCategories] = useState<Category[]>([]);
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [packages, setPackages] = useState<Package[]>([]);
@@ -474,11 +494,61 @@ export default function Index() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
           >
-          <Button variant="outline" size="lg" className="text-lg px-8 py-6 glass"
-                     onClick={() => handleShowContact('phone')}>
-                      <Phone className="w-5 h-5 mr-2" />
-                      Speak with Expert
-          </Button>
+          {/* --- PASTE START --- */}
+<>
+  <div className="flex gap-4">
+    <motion.div>
+      <Button 
+        variant="outline" 
+        size="lg" 
+        className="text-lg px-8 py-6 glass min-w-[200px]"
+        onClick={handleSmartContact}
+      >
+        {/* Toggle Icon based on copy state */}
+        {isCopied ? (
+          <Check className="w-5 h-5 mr-2 text-green-500" />
+        ) : (
+          <Phone className="w-5 h-5 mr-2" />
+        )}
+        
+        {/* Toggle Text based on copy state */}
+        {isCopied ? "Number Copied!" : "Speak with Expert"}
+      </Button>
+    </motion.div>
+  </div>
+
+  {/* Mobile Popup Menu (Dialog) */}
+  <Dialog open={showMobileMenu} onOpenChange={setShowMobileMenu}>
+    <DialogContent className="sm:max-w-md bg-white text-black">
+      <DialogHeader>
+        <DialogTitle>Contact Expert</DialogTitle>
+      </DialogHeader>
+      <div className="flex flex-col gap-4 py-4">
+        {/* Option 1: Call Directly */}
+        <Button 
+          size="lg" 
+          className="w-full gap-2" 
+          onClick={() => window.location.href = `tel:${phoneNumber}`}
+        >
+          <Phone className="w-4 h-4" />
+          Call Now ({phoneNumber})
+        </Button>
+
+        {/* Option 2: Copy Number */}
+        <Button 
+          variant="secondary" 
+          size="lg" 
+          className="w-full gap-2"
+          onClick={copyToClipboard}
+        >
+          <Copy className="w-4 h-4" />
+          Copy Number Only
+        </Button>
+      </div>
+    </DialogContent>
+  </Dialog>
+</>
+{/* --- PASTE END --- */}
           </motion.div>
         </div>
 
