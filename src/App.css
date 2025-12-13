@@ -86,3 +86,14 @@
     line-height: 1.1 !important;
   }
 }
+
+/* Hide dropdown menu items on mobile and center button */
+@media (max-width: 768px) {
+    nav [role="menu"] {
+          display: none;
+            }
+
+              nav {
+                    justify-content: center;
+                      }
+                      }
