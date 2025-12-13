@@ -28,7 +28,7 @@ interface Destination {
   name: string;
   description: string;
   location: string;
-  price_range: string;
+  price_range: string| null;
   images: string[];
   features: string[];
   category_id: string;
