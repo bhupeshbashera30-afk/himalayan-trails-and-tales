@@ -41,7 +41,7 @@ interface Package {
   name: string;
   description: string;
   duration_days: number;
-  price: number;
+  price?: number;
   destinations: string[];
   inclusions: string[];
   exclusions: string[];
