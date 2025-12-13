@@ -89,11 +89,13 @@
 
 /* Hide dropdown menu items on mobile and center button */
 @media (max-width: 768px) {
-    nav [role="menu"] {
-          display: none;
-            }
+  .mobile-hide {
+    display: none !important;
+  }
 
-              nav {
-                    justify-content: center;
-                      }
-                      }
+  .plan-journey-btn {
+    display: block;
+    margin: 1.5rem auto 0 auto; /* center on phones */
+    text-align: center;
+  }
+}
