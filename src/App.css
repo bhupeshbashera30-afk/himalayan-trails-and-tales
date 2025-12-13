@@ -95,7 +95,7 @@
 
   .plan-journey-btn {
     display: block;
-    margin: 1.5rem auto 0 auto; /* center on phones */
+    margin: 1.5rem auto 0 auto;
     text-align: center;
   }
 }

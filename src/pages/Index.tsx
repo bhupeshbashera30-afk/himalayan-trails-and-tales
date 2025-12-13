@@ -346,7 +346,7 @@ const copyToClipboard = () => {
 
             <Dialog>
               <DialogTrigger asChild>
-                <Button className="pulse-glow">Plan Your Journey</Button>
+                <Button className="Plan-journey-btn"> Plan Your Journey </Button>
               </DialogTrigger>
               <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
