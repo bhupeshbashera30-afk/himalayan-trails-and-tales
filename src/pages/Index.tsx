@@ -274,10 +274,22 @@ const copyToClipboard = () => {
             <div className="md:flex items-center space-x-8">
               {categories.map((category) => {
                 const IconComponent = iconMap[category.icon as keyof typeof iconMap] || Mountain;
+                const isMobileHiddenCategory = (name: string) => {
+  const lower = name.toLowerCase();
+  return (
+    lower.includes("pahadi") ||
+    lower.includes("restn nest") ||
+    lower.includes("soul spots") ||
+    lower.includes("wheels & wander") ||
+    lower.includes("adventure alley")
+  );
+};
                 return (
                   <div
                     key={category.id}
-                    className="relative"
+                     className={`relative ${
+    isMobileHiddenCategory(category.name) ? "mobile-hide" : ""
+  }`}
                     onMouseEnter={() => setActiveDropdown(category.id)}
                     onMouseLeave={() => setActiveDropdown(null)}
                   >
