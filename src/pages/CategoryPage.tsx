@@ -23,7 +23,7 @@ interface Destination {
   name: string;
   description: string;
   location: string;
-  price_range: string;
+  price_range: string|null;
   images: string[];
   features: string[];
   category_id: string;
@@ -245,7 +245,7 @@ export default function CategoryPage() {
                     </div>
 
                     <div className="text-lg font-bold text-primary">
-                      {destination.price_range}
+                      {destination.price_range || "On Request"}
                     </div>
 
                     <Dialog>
