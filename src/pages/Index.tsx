@@ -312,7 +312,7 @@ const copyToClipboard = () => {
                                 <div className="flex-1">
                                   <div className="font-medium text-sm">{destination.name}</div>
                                   <div className="text-xs text-muted-foreground">{destination.location}</div>
-                                  <div className="text-xs text-primary font-medium">{destination.price_range || "On Request"}</div>
+                                  <div className="text-xs text-primary font-medium">{destination.price_range || ""}</div>
                                 </div>
                                 <div className="flex items-center space-x-1">
                                   <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
@@ -863,7 +863,7 @@ const copyToClipboard = () => {
                   <CardContent>
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <span className="text-2xl font-bold text-primary">₹{pkg.price.toLocaleString()}</span>
+                        <span className="text-2xl font-bold text-primary">{pkg.price ? `${pkg.price.toLocaleString()}` : ""}</span>
                         <span className="text-sm text-muted-foreground">per person</span>
                       </div>
                       
