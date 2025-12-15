@@ -864,7 +864,7 @@ const copyToClipboard = () => {
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
                         <span className="text-2xl font-bold text-primary">{pkg.price ? `${pkg.price.toLocaleString()}` : ""}</span>
-                        <span className="text-sm text-muted-foreground">per person</span>
+                        <span className="text-sm text-muted-foreground"></span>
                       </div>
                       
                       <div className="space-y-2">
