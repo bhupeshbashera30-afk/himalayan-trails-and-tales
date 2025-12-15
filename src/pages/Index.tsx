@@ -271,7 +271,7 @@ const copyToClipboard = () => {
               Himalayan Trails & Tales
             </motion.div>
 
-            <div className="md:flex items-center space-x-8">
+            <div className="hidden md:flex items-center space-x-8">
               {categories.map((category) => {
                 const IconComponent = iconMap[category.icon as keyof typeof iconMap] || Mountain;
                 return (
