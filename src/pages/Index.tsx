@@ -904,7 +904,7 @@ const copyToClipboard = () => {
               className="text-center mt-12"
             >
               <Button variant="outline" size="lg" className="text-lg px-8 py-6" onClick={() => navigate('/packages')}>
-                906
+                View All
               </Button>
             </motion.div>
         </div>
