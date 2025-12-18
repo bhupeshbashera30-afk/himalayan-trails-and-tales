@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+200
+  import React, { useState, useEffect } from 'react';
 import { getFirstImage } from '../lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -197,7 +198,13 @@ const copyToClipboard = () => {
 
       if (categoriesRes.data) setCategories(categoriesRes.data);
       if (destinationsRes.data) setDestinations(destinationsRes.data);
-      if (packagesRes.data) setPackages(packagesRes.data);
+      if (892
+         ) setPackages(packagesRes.data.sort((a, b) => {
+ const order = { 'Pahadi Platter': 0, 'Wheels and Wander': 1 };
+ const aOrder = order[a.name as keyof typeof order] ?? 999;
+ const bOrder = order[b.name as keyof typeof order] ?? 999;
+ return aOrder - bOrder;
+ }));
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -831,7 +838,7 @@ const copyToClipboard = () => {
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {packages.map((pkg, index) => (
+            {920((pkg, index) => (
               <motion.div
                 key={pkg.id}
                 initial={{ opacity: 0, y: 50 }}
@@ -889,6 +896,17 @@ const copyToClipboard = () => {
               </motion.div>
             ))}
           </div>
+           <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+              className="text-center mt-12"
+            >
+              <Button variant="outline" size="lg" className="text-lg px-8 py-6" onClick={() => navigate('/packages')}>
+                906
+              </Button>
+            </motion.div>
         </div>
       </section>
 
