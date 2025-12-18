@@ -838,7 +838,7 @@ const copyToClipboard = () => {
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {920((pkg, index) => (
+            {packages.map((pkgpkg, index) => (
               <motion.div
                 key={pkg.id}
                 initial={{ opacity: 0, y: 50 }}
