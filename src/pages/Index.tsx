@@ -198,7 +198,7 @@ const copyToClipboard = () => {
 
       if (categoriesRes.data) setCategories(categoriesRes.data);
       if (destinationsRes.data) setDestinations(destinationsRes.data);
-      if (892
+      if (packagesRes.data
          ) setPackages(packagesRes.data.sort((a, b) => {
  const order = { 'Pahadi Platter': 0, 'Wheels and Wander': 1 };
  const aOrder = order[a.name as keyof typeof order] ?? 999;
@@ -838,7 +838,7 @@ const copyToClipboard = () => {
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {920((pkg, index) => (
+            {packages.map((pkg, index) => (
               <motion.div
                 key={pkg.id}
                 initial={{ opacity: 0, y: 50 }}
