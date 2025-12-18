@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { getFirstImage } from '@/lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MapPin, Calendar, Users, Heart } from 'lucide-react';
+import { MapPin, Calendar } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface Package {
@@ -34,18 +35,28 @@ export default function Packages() {
   const fetchPackages = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('packages')
+      setError(null);
+      
+      const { data, error: supabaseError } = await supabase
+        .from('destinations')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (supabaseError) {
+        console.error('Supabase error:', supabaseError);
+        throw supabaseError;
+      }
 
-      setPackages(data || []);
-      setError(null);
+      if (!data || data.length === 0) {
+        setPackages([]);
+        return;
+      }
+
+      setPackages(data as Package[]);
     } catch (err) {
       console.error('Error fetching packages:', err);
       setError('Failed to load packages. Please try again later.');
+      setPackages([]);
     } finally {
       setLoading(false);
     }
@@ -53,7 +64,7 @@ export default function Packages() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
@@ -61,7 +72,7 @@ export default function Packages() {
 
   return (
     <div className="min-h-screen bg-background py-12 px-4">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -86,63 +97,77 @@ export default function Packages() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {packages.map((pkg, index) => (
-              <motion.div
-                key={pkg.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer"
-                      onClick={() => navigate(`/package/${pkg.id}`)}>
-                  {pkg.images && pkg.images.length > 0 && (
-                    <div className="relative h-48 overflow-hidden rounded-t-lg">
-                      <img 
-                        src={pkg.images[0]} 
-                        alt={pkg.name}
-                        className="w-full h-full object-cover hover:scale-105 transition-transform"
-                      />
-                    </div>
-                  )}
-                  <CardHeader>
-                    <CardTitle className="text-xl">{pkg.name}</CardTitle>
-                    <CardDescription className="flex items-center gap-2 mt-2">
-                      <MapPin className="w-4 h-4" />
-                      {pkg.location}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <p className="text-sm text-muted-foreground line-clamp-2">
-                      {pkg.description}
-                    </p>
-                    
-                    <div className="flex flex-wrap gap-2">
-                      {pkg.features && pkg.features.slice(0, 3).map((feature, i) => (
-                        <Badge key={i} variant="secondary" className="text-xs">
-                          {feature}
-                        </Badge>
-                      ))}
-                    </div>
-
-                    <div className="flex items-center justify-between pt-4 border-t">
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-4 h-4" />
-                          {pkg.duration_days}d
-                        </span>
+            {packages.map((pkg, index) => {
+              const firstImage = getFirstImage(pkg.images);
+              return (
+                <motion.div
+                  key={pkg.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer group"
+                        onClick={() => navigate(`/package/${pkg.id}`)}>
+                    {firstImage && (
+                      <div className="relative h-48 overflow-hidden rounded-t-lg">
+                        <img 
+                          src={firstImage} 
+                          alt={pkg.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                        {pkg.rating && (
+                          <div className="absolute top-4 right-4 bg-green-500 text-white rounded-full px-3 py-1 text-sm font-semibold">
+                            ★ {pkg.rating}
+                          </div>
+                        )}
                       </div>
-                      {pkg.price_range && (
-                        <span className="font-semibold text-primary">
-                          {pkg.price_range}
-                        </span>
-                      )}
-                    </div>
+                    )}
+                    <CardHeader>
+                      <CardTitle className="text-xl">{pkg.name}</CardTitle>
+                      <CardDescription className="flex items-center gap-2 mt-2">
+                        <MapPin className="w-4 h-4" />
+                        {pkg.location}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <p className="text-sm text-muted-foreground line-clamp-2">
+                        {pkg.description}
+                      </p>
+                      
+                      <div className="flex flex-wrap gap-2">
+                        {pkg.features && pkg.features.slice(0, 3).map((feature, i) => (
+                          <Badge key={i} variant="secondary" className="text-xs">
+                            {feature}
+                          </Badge>
+                        ))}
+                        {pkg.features && pkg.features.length > 3 && (
+                          <Badge variant="secondary" className="text-xs">+{pkg.features.length - 3} more</Badge>
+                        )}
+                      </div>
 
-                    <Button className="w-full mt-4" onClick={() => navigate(`/package/${pkg.id}`)}>View Details</Button>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
+                      <div className="flex items-center justify-between pt-4 border-t">
+                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                          <Calendar className="w-4 h-4" />
+                          <span>{pkg.duration_days}d</span>
+                        </div>
+                        {pkg.price_range && (
+                          <span className="font-semibold text-primary">
+                            {pkg.price_range}
+                          </span>
+                        )}
+                      </div>
+
+                      <Button className="w-full mt-4" onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/package/${pkg.id}`);
+                      }}>
+                        View Details
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              );
+            })}
           </div>
         )}
       </div>
