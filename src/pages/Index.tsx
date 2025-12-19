@@ -480,9 +480,9 @@ const copyToClipboard = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            Discover the 
+            Discover the
             <br />
-            <span className="float"> Pahadi Spirit</span>
+            <span className="float">Pahadi Spirit</span>
           </motion.h1>
           
           <motion.p 
@@ -838,7 +838,7 @@ const copyToClipboard = () => {
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {packages.map((pkg, index) => (
+            {packages.map((pkgpkg, index) => (
               <motion.div
                 key={pkg.id}
                 initial={{ opacity: 0, y: 50 }}
