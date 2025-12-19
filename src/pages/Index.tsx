@@ -475,14 +475,14 @@ const copyToClipboard = () => {
         
         <div className="relative z-10 text-center px-6 max-w-6xl mx-auto">
           <motion.h1 
-            className="font-serif text-6xl md:text-8xl font-bold mb-6 gradient-text"
+            className="font-serif text-6xl md:text-8xl font-bold mb-6"
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             Discover the
             <br />
-            <span className="float">Pahadi Spirit</span>
+            <span className="float gradient-text">Pahadi Spirit</span>
           </motion.h1>
           
           <motion.p 
@@ -838,7 +838,7 @@ const copyToClipboard = () => {
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {packages.map((pkgpkg, index) => (
+            {packages.map((pkg, index) => (
               <motion.div
                 key={pkg.id}
                 initial={{ opacity: 0, y: 50 }}
