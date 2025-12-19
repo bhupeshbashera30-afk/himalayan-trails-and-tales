@@ -475,16 +475,14 @@ const copyToClipboard = () => {
         
         <div className="relative z-10 text-center px-6 max-w-6xl mx-auto">
           <motion.h1 
-            className="font-serif text-6xl md:text-8xl font-bold mb-6 gradient-text"
-            initial={{ opacity: 0, y: 50 }}
+            className="font-serif text-6xl md:text-8xl font-bold mb-6"            initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             Discover the
             <br />
-            <span className="float">Pahadi Spirit</span>
-          </motion.h1>
-          
+            <span className="float gradient-text">Pahadi Spirit</span>
+                        </motion.h1>
           <motion.p 
             className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed"
             initial={{ opacity: 0, y: 30 }}
