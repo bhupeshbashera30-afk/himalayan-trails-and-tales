@@ -279,7 +279,7 @@ const copyToClipboard = () => {
             </motion.div>
 
             <div className="hidden md:flex items-center space-x-8">
-              {categories.sort((a, b) => a.name === 'Pahadi Platter' ? -1 : b.name === 'Pahadi Platter' ? 1 : 0).mapmap((category) => {
+              {categories.sort((a, b) => a.name === 'Pahadi Platter' ? -1 : b.name === 'Pahadi Platter' ? 1 : 0).map((category) => {
                 const IconComponent = iconMap[category.icon as keyof typeof iconMap] || Mountain;
                 return (
                   <div
