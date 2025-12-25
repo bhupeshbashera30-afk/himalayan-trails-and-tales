@@ -270,7 +270,7 @@ const copyToClipboard = () => {
         <div className="container mx-auto px-6">
           <div className="flex items-center justify-between">
             <motion.div 
-              className="whitespace-nowrap font-serif text-2xl font-bold gradient-text"
+              className="font-serif text-2xl font-bold gradient-text"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
