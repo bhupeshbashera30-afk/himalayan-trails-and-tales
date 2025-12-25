@@ -175,8 +175,8 @@ const copyToClipboard = () => {
 
   const handleShowContact = (type: string) => {
     if (type === 'email') {
-      navigator.clipboard.writeText('Himalayantrailesandtales@gmail.com');
-      toast({ title: "Email Copied!", description: "Himalayantrailesandtales@gmail.com" });
+      navigator.clipboard.writeText('himalayantrailtales@gmail.com');
+      toast({ title: "Email Copied!", description: "himalayantrailtales@gmail.com" });
     } else if (type === 'phone') {
       navigator.clipboard.writeText('+91 8630113945');
       toast({ title: "Phone Copied!", description: "+91 8630113945" });
@@ -554,7 +554,6 @@ const copyToClipboard = () => {
 
         {/* Floating elements */}
         <div className="absolute top-20 left-10 w-20 h-20 bg-primary/20 rounded-full blur-xl float" style={{ animationDelay: '0s' }} />
-        <div className="absolute bottom-20 right-10 w-32 h-32 bg-accent/20 rounded-full blur-xl float" style={{ animationDelay: '2s' }} />
         <div className="absolute top-1/2 left-1/4 w-16 h-16 bg-primary-glow/20 rounded-full blur-xl float" style={{ animationDelay: '4s' }} />
       </section>
 
@@ -1004,7 +1003,7 @@ const copyToClipboard = () => {
 </Button>
 
                 <Button variant="outline" size="sm"
-                  onClick={() => window.location.href = "mailto:Himalayantrailesandtales@gmail.com"}>
+                  onClick={() => window.location.href = "mailto:himalayantrailtales@gmail.com"}>
                   <Mail className="w-4 h-4 mr-2" />
                   Email
                 </Button>
