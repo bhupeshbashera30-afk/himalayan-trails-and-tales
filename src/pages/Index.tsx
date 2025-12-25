@@ -1042,7 +1042,7 @@ const copyToClipboard = () => {
                 </div>
                 <div className="flex items-center space-x-2">
                   <Mail className="w-4 h-4" />
-                  <span>Himalayantrailesandtales@gmail.com</span>
+                  <span>himalayantrailtales@gmail.com</span>
                 </div>
               </div>
             </div>
