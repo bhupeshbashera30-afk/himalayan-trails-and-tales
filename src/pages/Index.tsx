@@ -108,6 +108,7 @@ const copyToClipboard = () => {
     special_requirements: ''
   });
 
+  const [showThankYou, setShowThankYou] = useState(false);
   const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -116,6 +117,7 @@ const copyToClipboard = () => {
         title: "Booking Submitted!",
         description: "We'll confirm your booking within 24 hours."
       });
+      setShowThankYou(true);
       setBookingForm({
         name: '',
         email: '',
