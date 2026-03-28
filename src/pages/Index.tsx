@@ -1051,6 +1051,24 @@ const copyToClipboard = () => {
           </div>
         </div>
       </footer>
+
+      {/* Thank You Popup Dialog */}
+      <Dialog open={showThankYou} onOpenChange={setShowThankYou}>
+        <DialogContent className="sm:max-w-md text-center">
+          <DialogHeader className="text-center">
+            <DialogTitle className="text-2xl font-bold text-primary">Thank You for Choosing Us!</DialogTitle>
+            <DialogDescription className="mt-2">
+              We're excited to help you plan your Himalayan adventure. Our team will reach out to you shortly with personalized recommendations.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-sm text-gray-600">Your request has been received and is being reviewed by our experts.</p>
+          </div>
+          <Button onClick={() => setShowThankYou(false)} className="w-full">
+            Close
+          </Button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
