@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getFirstImage } from "../lib/utils";
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ChevronLeft, Star, Calendar, Users, MapPin, Mountain, Utensils, Bed, Heart, Car } from 'lucide-react';
@@ -8,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { DatePicker } from '@/components/ui/date-picker';
 
 interface Category {
   id: string;
@@ -22,7 +24,7 @@ interface Destination {
   name: string;
   description: string;
   location: string;
-  price_range: string;
+  price_range: string| null;
   images: string[];
   features: string[];
   category_id: string;
@@ -38,21 +40,6 @@ const iconMap: { [key: string]: any } = {
   car: Car,
 };
 
-// Helper function to safely get the first image from destination
-const getFirstImage = (images: string | string[] | null): string => {
-  if (!images) return '';
-  if (typeof images === 'string') {
-    try {
-      const parsed = JSON.parse(images);
-      return Array.isArray(parsed) && parsed.length > 0 ? parsed[0] : '';
-    } catch {
-      return images;
-    }
-  }
-  return Array.isArray(images) && images.length > 0 ? images[0] : '';
-};
-
-
 export default function CategoryPage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
@@ -60,6 +47,7 @@ export default function CategoryPage() {
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedDestination, setSelectedDestination] = useState<Destination | null>(null);
+ const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [bookingForm, setBookingForm] = useState({
     name: '',
     email: '',
@@ -108,22 +96,23 @@ export default function CategoryPage() {
 
   const handleBooking = async (e: React.FormEvent) => {
     e.preventDefault();
-
     try {
       const { error } = await supabase
         .from('bookings_2025_10_14_17_34')
         .insert([{
-          ...bookingForm,
+ guest_name: bookingForm.name,
+ guest_email: bookingForm.email,
+ guest_phone: bookingForm.phone,
+ travel_date: bookingForm.travel_dates,
+ group_size: bookingForm.group_size,
+ special_requests: bookingForm.special_requirements,
           destination_id: selectedDestination?.id,
-          category_id: category?.id
+ category_id: category?.id,
         }]);
 
       if (error) throw error;
 
-      toast({
-        title: "Booking Request Sent!",
-        description: "We'll contact you shortly to confirm your booking.",
-      });
+ setShowSuccessDialog(true);
 
       setBookingForm({
         name: '',
@@ -200,27 +189,31 @@ export default function CategoryPage() {
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {destinations.map((destination, index) => (
-            <motion.div
-              key={destination.id}
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-transition={{ duration: 0.6 }}            >
-              <Card className="group hover:shadow-2xl transition-all duration-500 overflow-hidden glass h-full flex flex-col">
-                <div className="relative overflow-hidden">
-                  <img
-                    src={getFirstImage(destination.images)}
-                    alt={destination.name}
-                    className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-700"
-                  />
-                  <div className="absolute top-4 right-4">
-                    <Badge className="bg-primary text-primary-foreground flex items-center space-x-1">
-                      <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                      <span>{destination.rating}</span>
-                    </Badge>
-                  </div>
-                </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+  {destinations.map((destination, index) => (
+    <motion.div
+      key={destination.id}
+      initial={{ opacity: 0, y: 50 }}
+ whileInView={{ opacity: 1, y: 0 }}
+ viewport={{ once: true }}
+      transition={{ duration: 0.6, delay: index * 0.1 }}
+    >
+      <Card className="group hover:shadow-2xl transition-all duration-500 overflow-hidden glass h-full flex flex-col transform-gpu">
+        <div className="relative overflow-hidden h-64"> 
+          <img
+            src={getFirstImage(destination.images, 600)} 
+            alt={destination.name}
+            decoding="async"
+            loading="lazy"
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 bg-white/10"
+          />
+          <div className="absolute top-4 right-4">
+             <Badge className="bg-primary text-primary-foreground flex items-center space-x-1">
+                <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                <span>{destination.rating}</span>
+             </Badge>
+          </div>
+        </div>
 
                 <CardHeader>
                   <CardTitle className="font-serif text-2xl">{destination.name}</CardTitle>
@@ -253,7 +246,7 @@ transition={{ duration: 0.6 }}            >
                     </div>
 
                     <div className="text-lg font-bold text-primary">
-                      {destination.price_range}
+                      {destination.price_range || ""}
                     </div>
 
                     <Dialog>
@@ -266,6 +259,7 @@ transition={{ duration: 0.6 }}            >
                           Book Now
                         </Button>
                       </DialogTrigger>
+
                       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                         <DialogHeader>
                           <DialogTitle className="font-serif text-2xl">Book {destination.name}</DialogTitle>
@@ -286,6 +280,7 @@ transition={{ duration: 0.6 }}            >
                                 required
                               />
                             </div>
+
                             <div>
                               <label className="text-sm font-medium">Email *</label>
                               <input
@@ -308,15 +303,15 @@ transition={{ duration: 0.6 }}            >
                                 onChange={(e) => setBookingForm(prev => ({ ...prev, phone: e.target.value }))}
                               />
                             </div>
+
                             <div>
-                              <label className="text-sm font-medium">Travel Dates *</label>
-                              <input
-                                type="text"
-                                placeholder="e.g., Dec 15-20, 2024"
-                                className="w-full mt-2 px-3 py-2 border border-border rounded-lg bg-background"
+                              <label className="text-sm font-medium">Travel Date *</label>
+                              <DatePicker
                                 value={bookingForm.travel_dates}
-                                onChange={(e) => setBookingForm(prev => ({ ...prev, travel_dates: e.target.value }))}
+                                onChange={(val) => setBookingForm(prev => ({ ...prev, travel_dates: val }))}
+                                min={new Date().toISOString().split('T')[0]}
                                 required
+                                className="mt-2"
                               />
                             </div>
                           </div>
@@ -367,6 +362,25 @@ transition={{ duration: 0.6 }}            >
             </p>
           </div>
         )}
+
+         <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+ <DialogContent className="max-w-md text-center">
+ <DialogHeader>
+ <DialogTitle className="font-serif text-3xl text-primary">THANK YOU FOR CHOOSING US!</DialogTitle>
+ </DialogHeader>
+ <DialogDescription className="text-lg mt-4">
+ WE WILL GET BACK TO YOU SOON
+ </DialogDescription>
+ <div className="mt-8">
+ <Button
+ onClick={() => setShowSuccessDialog(false)}
+ className="w-full"
+ >
+ Close
+ </Button>
+ </div>
+ </DialogContent>
+ </Dialog>
       </div>
     </div>
   );

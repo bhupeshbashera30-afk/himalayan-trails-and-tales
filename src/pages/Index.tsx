@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { getFirstImage } from '../lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Mountain, Utensils, Bed, Heart, Star, Calendar, Users, Phone, Mail, MapPin, Car } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Phone, Copy, Check, ChevronDown, Mountain, Utensils, Bed, Heart, Star, Calendar, Users, Mail, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { DatePicker } from '@/components/ui/date-picker';
 
 interface Category {
   id: string;
@@ -28,7 +29,7 @@ interface Destination {
   name: string;
   description: string;
   location: string;
-  price_range: string;
+  price_range: string| null;
   images: string[];
   features: string[];
   category_id: string;
@@ -41,7 +42,7 @@ interface Package {
   name: string;
   description: string;
   duration_days: number;
-  price: number;
+  price?: number;
   destinations: string[];
   inclusions: string[];
   exclusions: string[];
@@ -49,31 +50,36 @@ interface Package {
   is_featured: boolean;
 }
 
-const iconMap: { [key: string]: any } = {
+const iconMap = {
   utensils: Utensils,
   bed: Bed,
   mountain: Mountain,
   heart: Heart,
-  car: Car,
 };
 
-    // Helper function to safely get the first image from destination
-const getFirstImage = (images: string | string[] | null): string => {
-  if (!images) return '';
-  if (typeof images === 'string') {
-    try {
-      const parsed = JSON.parse(images);
-      return Array.isArray(parsed) && parsed.length > 0 ? parsed[0] : '';
-    } catch {
-      return images;
-    }
-  }
-  return Array.isArray(images) && images.length > 0 ? images[0] : '';
-};
-
+ 
 
 export default function Index() {
-  const navigate = useNavigate();
+  const [isCopied, setIsCopied] = useState(false);
+const [showMobileMenu, setShowMobileMenu] = useState(false);
+const phoneNumber = "+918630113945"; // Your updated number
+
+const handleSmartContact = () => {
+  // Check if mobile
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  if (isMobile) {
+    setShowMobileMenu(true); // Open menu on mobile
+  } else {
+    copyToClipboard(); // Copy directly on Windows/Desktop
+  }
+};
+
+const copyToClipboard = () => {
+  navigator.clipboard.writeText(phoneNumber);
+  setIsCopied(true);
+  setTimeout(() => setIsCopied(false), 2000);
+  setShowMobileMenu(false);
+};
   const [categories, setCategories] = useState<Category[]>([]);
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [packages, setPackages] = useState<Package[]>([]);
@@ -92,6 +98,7 @@ export default function Index() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
+  const [showContactThankYou, setShowContactThankYou] = useState(false);
   const [bookingForm, setBookingForm] = useState({
     name: '',
     email: '',
@@ -170,8 +177,8 @@ export default function Index() {
 
   const handleShowContact = (type: string) => {
     if (type === 'email') {
-      navigator.clipboard.writeText('Himalayantrailesandtales@gmail.com');
-      toast({ title: "Email Copied!", description: "Himalayantrailesandtales@gmail.com" });
+      navigator.clipboard.writeText('himalayantrailtales@gmail.com');
+      toast({ title: "Email Copied!", description: "himalayantrailtales@gmail.com" });
     } else if (type === 'phone') {
       navigator.clipboard.writeText('+91 8630113945');
       toast({ title: "Phone Copied!", description: "+91 8630113945" });
@@ -212,10 +219,7 @@ export default function Index() {
 
       if (error) throw error;
 
-      toast({
-        title: "Message Sent!",
-        description: "We'll get back to you within 24 hours to discuss your travel plans.",
-      });
+      setShowContactThankYou(true);
 
       setContactForm({
         name: '',
@@ -266,7 +270,7 @@ export default function Index() {
               Himalayan Trails & Tales
             </motion.div>
 
-            <div className="md:flex items-center space-x-8">
+            <div className="hidden md:flex items-center space-x-8">
               {categories.map((category) => {
                 const IconComponent = iconMap[category.icon as keyof typeof iconMap] || Mountain;
                 return (
@@ -307,7 +311,7 @@ export default function Index() {
                                 <div className="flex-1">
                                   <div className="font-medium text-sm">{destination.name}</div>
                                   <div className="text-xs text-muted-foreground">{destination.location}</div>
-                                  <div className="text-xs text-primary font-medium">{destination.price_range}</div>
+                                  <div className="text-xs text-primary font-medium">{destination.price_range || ""}</div>
                                 </div>
                                 <div className="flex items-center space-x-1">
                                   <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
@@ -373,11 +377,12 @@ export default function Index() {
                     </div>
                     <div>
                       <Label htmlFor="travel_dates">Preferred Travel Dates</Label>
-                      <Input
+                      <DatePicker
                         id="travel_dates"
-                        placeholder="e.g., March 15-20, 2024"
                         value={contactForm.travel_dates}
-                        onChange={(e) => setContactForm(prev => ({ ...prev, travel_dates: e.target.value }))}
+                        onChange={(val) => setContactForm(prev => ({ ...prev, travel_dates: val }))}
+                        min={new Date().toISOString().split('T')[0]}
+                        className="mt-1"
                       />
                     </div>
                   </div>
@@ -446,6 +451,23 @@ export default function Index() {
                 </form>
               </DialogContent>
             </Dialog>
+
+            {/* Thank You Dialog for Contact Form */}
+            <Dialog open={showContactThankYou} onOpenChange={setShowContactThankYou}>
+              <DialogContent className="max-w-md text-center">
+                <DialogHeader>
+                  <DialogTitle className="font-serif text-3xl text-primary">THANK YOU FOR CHOOSING US!</DialogTitle>
+                </DialogHeader>
+                <DialogDescription className="text-lg mt-4">
+                  WE WILL GET BACK TO YOU SOON
+                </DialogDescription>
+                <div className="mt-8">
+                  <Button onClick={() => setShowContactThankYou(false)} className="w-full">
+                    Close
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </nav>
@@ -468,9 +490,8 @@ export default function Index() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            Discover the
+            Discover Pahadi Spirit
             <br />
-            <span className="float">Pahadi Spirit</span>
           </motion.h1>
           
           <motion.p 
@@ -489,17 +510,66 @@ export default function Index() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
           >
-          <Button variant="outline" size="lg" className="text-lg px-8 py-6 glass"
-                     onClick={() => handleShowContact('phone')}>
-                      <Phone className="w-5 h-5 mr-2" />
-                      Speak with Expert
-          </Button>
+          {/* --- PASTE START --- */}
+<>
+  <div className="flex gap-4">
+    <motion.div>
+      <Button 
+        variant="outline" 
+        size="lg" 
+        className="text-lg px-8 py-6 glass min-w-[200px]"
+        onClick={handleSmartContact}
+      >
+        {/* Toggle Icon based on copy state */}
+        {isCopied ? (
+          <Check className="w-5 h-5 mr-2 text-green-500" />
+        ) : (
+          <Phone className="w-5 h-5 mr-2" />
+        )}
+        
+        {/* Toggle Text based on copy state */}
+        {isCopied ? "Number Copied!" : "Speak with Expert"}
+      </Button>
+    </motion.div>
+  </div>
+
+  {/* Mobile Popup Menu (Dialog) */}
+  <Dialog open={showMobileMenu} onOpenChange={setShowMobileMenu}>
+    <DialogContent className="sm:max-w-md bg-white text-black">
+      <DialogHeader>
+        <DialogTitle>Contact Expert</DialogTitle>
+      </DialogHeader>
+      <div className="flex flex-col gap-4 py-4">
+        {/* Option 1: Call Directly */}
+        <Button 
+          size="lg" 
+          className="w-full gap-2" 
+          onClick={() => window.location.href = `tel:${phoneNumber}`}
+        >
+          <Phone className="w-4 h-4" />
+          Call Now ({phoneNumber})
+        </Button>
+
+        {/* Option 2: Copy Number */}
+        <Button 
+          variant="secondary" 
+          size="lg" 
+          className="w-full gap-2"
+          onClick={copyToClipboard}
+        >
+          <Copy className="w-4 h-4" />
+          Copy Number Only
+        </Button>
+      </div>
+    </DialogContent>
+  </Dialog>
+</>
+{/* --- PASTE END --- */}
           </motion.div>
         </div>
 
         {/* Floating elements */}
         <div className="absolute top-20 left-10 w-20 h-20 bg-primary/20 rounded-full blur-xl float" style={{ animationDelay: '0s' }} />
-        <div className="absolute bottom-20 right-10 w-32 h-32 bg-accent/20 rounded-full blur-xl float" style={{ animationDelay: '2s' }} />
         <div className="absolute top-1/2 left-1/4 w-16 h-16 bg-primary-glow/20 rounded-full blur-xl float" style={{ animationDelay: '4s' }} />
       </section>
 
@@ -808,7 +878,7 @@ export default function Index() {
                   <CardContent>
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <span className="text-2xl font-bold text-primary">₹{pkg.price.toLocaleString()}</span>
+                        <span className="text-2xl font-bold text-primary">{pkg.price ? `${pkg.price.toLocaleString()}` : ""}</span>
                         <span className="text-sm text-muted-foreground">per person</span>
                       </div>
                       
@@ -880,24 +950,32 @@ export default function Index() {
                     </CardHeader>
                     
                     <CardContent>
-                      <div className="space-y-3">
-                        {categoryDestinations.slice(0, 3).map((destination) => (
-                          <div key={destination.id} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
-                            <img 
-                              src={getFirstImage(destination.images)} 
-                              alt={destination.name}
-                              className="w-10 h-10 rounded-lg object-cover"
-                            />
-                            <div className="flex-1">
-                              <div className="font-medium text-sm">{destination.name}</div>
-                              <div className="text-xs text-muted-foreground">{destination.location}</div>
-                            </div>
-                            <div className="flex items-center space-x-1">
-                              <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                              <span className="text-xs">{destination.rating}</span>
-                            </div>
-                          </div>
-                        ))}
+                     <div className="space-y-3">
+    {categoryDestinations.slice(0, 3).map((destination) => (
+      <div key={destination.id} className="flex items-center space-x-3 ...">
+        
+        {/* USAGE: Standard <img> tag optimized for Vite */}
+        <img
+          src={getFirstImage(destination.images)} // Uses default 100px width
+          alt={destination.name}
+          decoding="async"
+          loading="lazy"
+          width={40}
+          height={40}
+          className="w-10 h-10 rounded-lg object-cover bg-white/10"
+        />
+
+      <div className="flex-1">
+        <div className="font-medium text-sm">{destination.name}</div>
+        <div className="text-xs text-muted-foreground">{destination.location}</div>
+      </div>
+      
+      <div className="flex items-center space-x-1">
+        <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+        <span className="text-xs">{destination.rating}</span>
+      </div>
+    </div>
+  ))}
                         
                         <Button variant="outline" size="sm" className="w-full mt-4" onClick={() => navigate(`/category/${category.slug}`)}>
                           Explore {category.name}
@@ -925,15 +1003,23 @@ export default function Index() {
               </p>
               <div className="flex space-x-4">
                 <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => handleShowContact('phone')}>
-                  <Phone className="w-4 h-4 mr-2" />
-                  Call Us
-                </Button>
+  variant="outline" 
+  size="sm" 
+  onClick={handleSmartContact} // Reusing the same smart handler
+>
+  {/* Toggle Icon: Checkmark if copied, Phone otherwise */}
+  {isCopied ? (
+    <Check className="w-4 h-4 mr-2 text-green-500" />
+  ) : (
+    <Phone className="w-4 h-4 mr-2" />
+  )}
+
+  {/* Toggle Text: "Copied!" or "Call Us" */}
+  {isCopied ? "Copied!" : "Call Us"}
+</Button>
 
                 <Button variant="outline" size="sm"
-                  onClick={() => window.location.href = "mailto:Himalayantrailesandtales@gmail.com"}>
+                  onClick={() => window.location.href = "mailto:himalayantrailtales@gmail.com"}>
                   <Mail className="w-4 h-4 mr-2" />
                   Email
                 </Button>
@@ -972,7 +1058,7 @@ export default function Index() {
                 </div>
                 <div className="flex items-center space-x-2">
                   <Mail className="w-4 h-4" />
-                  <span>Himalayantrailesandtales@gmail.com</span>
+                  <span>himalayantrailtales@gmail.com</span>
                 </div>
               </div>
             </div>
