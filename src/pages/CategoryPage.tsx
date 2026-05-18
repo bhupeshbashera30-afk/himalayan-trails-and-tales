@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { DatePicker } from '@/components/ui/date-picker';
 
 interface Category {
   id: string;
@@ -304,14 +305,13 @@ export default function CategoryPage() {
                             </div>
 
                             <div>
-                              <label className="text-sm font-medium">Travel Dates *</label>
-                              <input
-                                type="text"
-                                placeholder="e.g., Dec 15-20, 2024"
-                                className="w-full mt-2 px-3 py-2 border border-border rounded-lg bg-background"
+                              <label className="text-sm font-medium">Travel Date *</label>
+                              <DatePicker
                                 value={bookingForm.travel_dates}
-                                onChange={(e) => setBookingForm(prev => ({ ...prev, travel_dates: e.target.value }))}
+                                onChange={(val) => setBookingForm(prev => ({ ...prev, travel_dates: val }))}
+                                min={new Date().toISOString().split('T')[0]}
                                 required
+                                className="mt-2"
                               />
                             </div>
                           </div>
