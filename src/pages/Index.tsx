@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { DatePicker } from '@/components/ui/date-picker';
 
 interface Category {
   id: string;
@@ -97,6 +98,7 @@ const copyToClipboard = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
+  const [showContactThankYou, setShowContactThankYou] = useState(false);
   const [bookingForm, setBookingForm] = useState({
     name: '',
     email: '',
@@ -219,10 +221,7 @@ const copyToClipboard = () => {
 
       if (error) throw error;
 
-      toast({
-        title: "Message Sent!",
-        description: "We'll get back to you within 24 hours to discuss your travel plans.",
-      });
+      setShowContactThankYou(true);
 
       setContactForm({
         name: '',
@@ -380,11 +379,12 @@ const copyToClipboard = () => {
                     </div>
                     <div>
                       <Label htmlFor="travel_dates">Preferred Travel Dates</Label>
-                      <Input
+                      <DatePicker
                         id="travel_dates"
-                        placeholder="e.g., March 15-20, 2024"
                         value={contactForm.travel_dates}
-                        onChange={(e) => setContactForm(prev => ({ ...prev, travel_dates: e.target.value }))}
+                        onChange={(val) => setContactForm(prev => ({ ...prev, travel_dates: val }))}
+                        min={new Date().toISOString().split('T')[0]}
+                        className="mt-1"
                       />
                     </div>
                   </div>
@@ -451,6 +451,23 @@ const copyToClipboard = () => {
                     Send My Travel Request
                   </Button>
                 </form>
+              </DialogContent>
+            </Dialog>
+
+            {/* Thank You Dialog for Contact Form */}
+            <Dialog open={showContactThankYou} onOpenChange={setShowContactThankYou}>
+              <DialogContent className="max-w-md text-center">
+                <DialogHeader>
+                  <DialogTitle className="font-serif text-3xl text-primary">THANK YOU FOR CHOOSING US!</DialogTitle>
+                </DialogHeader>
+                <DialogDescription className="text-lg mt-4">
+                  WE WILL GET BACK TO YOU SOON
+                </DialogDescription>
+                <div className="mt-8">
+                  <Button onClick={() => setShowContactThankYou(false)} className="w-full">
+                    Close
+                  </Button>
+                </div>
               </DialogContent>
             </Dialog>
           </div>
