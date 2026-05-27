@@ -213,7 +213,7 @@ export default function Dashboard() {
         >
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold text-white">Recent Bookings</h2>
-            <a href="#/admin/bookings" className="text-xs text-primary hover:underline">View All</a>
+            <a href="/admin/bookings" className="text-xs text-primary hover:underline">View All</a>
           </div>
           <div className="space-y-3">
             {recentBookings.length === 0 ? (
@@ -251,7 +251,7 @@ export default function Dashboard() {
       >
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-semibold text-white">Recent Enquiries</h2>
-          <a href="#/admin/enquiries" className="text-xs text-primary hover:underline">View All</a>
+          <a href="/admin/enquiries" className="text-xs text-primary hover:underline">View All</a>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">

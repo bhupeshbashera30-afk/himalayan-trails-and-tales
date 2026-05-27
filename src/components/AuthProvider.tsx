@@ -31,24 +31,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
 
         if (event === 'SIGNED_IN' && session?.user) {
-          // Create or update user profile
-          const { error } = await supabase
-            .from('profiles_2025_10_14_17_34')
-            .upsert({
-              id: session.user.id,
-              full_name: session.user.user_metadata?.full_name || '',
-              updated_at: new Date().toISOString(),
-            });
+          setTimeout(async () => {
+            const { error } = await supabase
+              .from('profiles_2025_10_14_17_34')
+              .upsert({
+                id: session.user.id,
+                full_name: session.user.user_metadata?.full_name || '',
+                updated_at: new Date().toISOString(),
+              });
 
-          if (error) {
-            console.error('Error creating/updating profile:', error);
-          }
+            if (error) {
+              console.error('Error creating/updating profile:', error);
+            }
+          }, 0);
         }
       }
     );
