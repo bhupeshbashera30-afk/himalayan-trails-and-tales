@@ -48,7 +48,30 @@ export default function Treks() {
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
 
-  useEffect(() => { fetchTreks(); }, []);
+  useEffect(() => {
+    fetchTreks();
+
+    // Subscribe to real-time changes on the "treks" table
+    const treksChannel = supabase
+      .channel('treks-realtime-admin')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'treks' },
+        async (payload) => {
+          // Re-fetch treks when any change occurs
+          const { data } = await supabase
+            .from('treks')
+            .select('*')
+            .order('start_date', { ascending: true });
+          if (data) setTreks(data as Trek[]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(treksChannel);
+    };
+  }, []);
 
   const fetchTreks = async () => {
     setLoading(true);

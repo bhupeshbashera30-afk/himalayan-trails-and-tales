@@ -42,6 +42,21 @@ export default function TrekRegistrationForm({ trek, open, onClose }: TrekRegist
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Client-side validation checks
+    if (!form.name.trim()) {
+      toast({ title: 'Validation Error', description: 'Please enter your full name.', variant: 'destructive' });
+      return;
+    }
+    if (!form.email.trim()) {
+      toast({ title: 'Validation Error', description: 'Please enter your email address.', variant: 'destructive' });
+      return;
+    }
+    if (!form.phone.trim()) {
+      toast({ title: 'Validation Error', description: 'Please enter your phone number.', variant: 'destructive' });
+      return;
+    }
+
     setLoading(true);
     try {
       const { error } = await supabase.from('trek_registrations').insert([{
@@ -110,7 +125,7 @@ export default function TrekRegistrationForm({ trek, open, onClose }: TrekRegist
             <DialogHeader>
               <DialogTitle className="font-serif text-xl">Register for Trek</DialogTitle>
             </DialogHeader>
-
+ 
             {/* Trek Summary */}
             <div className="glass rounded-xl p-4 mb-4">
               <div className="flex items-start gap-3">
@@ -140,7 +155,7 @@ export default function TrekRegistrationForm({ trek, open, onClose }: TrekRegist
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <Label htmlFor="reg-name" className="flex items-center gap-2 mb-1">
-                  <Mail className="w-3.5 h-3.5" /> Full Name *
+                  <Users className="w-3.5 h-3.5" /> Full Name *
                 </Label>
                 <Input
                   id="reg-name"
@@ -167,13 +182,14 @@ export default function TrekRegistrationForm({ trek, open, onClose }: TrekRegist
                 </div>
                 <div>
                   <Label htmlFor="reg-phone" className="flex items-center gap-2 mb-1">
-                    <Phone className="w-3.5 h-3.5" /> Phone
+                    <Phone className="w-3.5 h-3.5" /> Phone *
                   </Label>
                   <Input
                     id="reg-phone"
                     placeholder="+91 XXXXXXXXXX"
                     value={form.phone}
                     onChange={(e) => setForm(p => ({ ...p, phone: e.target.value }))}
+                    required
                   />
                 </div>
               </div>

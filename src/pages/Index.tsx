@@ -214,7 +214,29 @@ export default function Index() {
     fetchData();
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+
+    // Subscribe to real-time changes on the "treks" table
+    const treksChannel = supabase
+      .channel('treks-realtime-homepage')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'treks' },
+        async (payload) => {
+          // Re-fetch treks when any change occurs
+          const { data } = await supabase
+            .from('treks')
+            .select('*')
+            .eq('is_active', true)
+            .order('start_date', { ascending: true });
+          if (data) setTreks(data as Trek[]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      supabase.removeChannel(treksChannel);
+    };
   }, []);
 
   const fetchData = async () => {
