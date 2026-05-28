@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Plus, Pencil, Trash2, RefreshCw, Mountain, Calendar,
-  Users, MapPin, X, Check, ToggleLeft, ToggleRight
+  Users, MapPin, X, Check, ToggleLeft, ToggleRight, ImagePlus, Upload
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -46,6 +46,7 @@ export default function Treks() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyTrek);
   const [saving, setSaving] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   useEffect(() => { fetchTreks(); }, []);
 
@@ -136,6 +137,48 @@ export default function Treks() {
     const { error } = await supabase.from('treks').update({ is_active: !trek.is_active }).eq('id', trek.id);
     if (!error) {
       setTreks(prev => prev.map(t => t.id === trek.id ? { ...t, is_active: !t.is_active } : t));
+    }
+  };
+
+  const handleImageUpload = async (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      toast({ title: 'Invalid file', description: 'Please choose an image file.', variant: 'destructive' });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: 'Image too large', description: 'Please upload an image under 5 MB.', variant: 'destructive' });
+      return;
+    }
+
+    setUploadingImage(true);
+    const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+    const safeName = (form.name || 'trek').toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/(^-|-$)/g, '') || 'trek';
+    const filePath = `${safeName}/${Date.now()}-${crypto.randomUUID()}.${ext}`;
+
+    try {
+      const { error } = await supabase.storage
+        .from('trek-images')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false,
+        });
+
+      if (error) throw error;
+
+      const { data } = supabase.storage
+        .from('trek-images')
+        .getPublicUrl(filePath);
+
+      setForm(prev => ({ ...prev, image_url: data.publicUrl }));
+      toast({ title: 'Image uploaded', description: 'The trek image is ready.' });
+    } catch (err: any) {
+      toast({
+        title: 'Upload failed',
+        description: err.message || 'Could not upload image to Supabase Storage.',
+        variant: 'destructive',
+      });
+    } finally {
+      setUploadingImage(false);
     }
   };
 
@@ -318,8 +361,60 @@ export default function Treks() {
               </div>
             </div>
             <div>
-              <Label className="text-sm mb-1 block">Image URL</Label>
-              <Input value={form.image_url} onChange={e => setForm(p => ({ ...p, image_url: e.target.value }))} placeholder="https://images.unsplash.com/..." className="bg-white/5 border-white/10" />
+              <Label className="text-sm mb-1 block">Trek Image</Label>
+              <div className="grid grid-cols-1 sm:grid-cols-[160px_1fr] gap-3">
+                <div className="relative h-32 rounded-lg border border-white/10 bg-white/5 overflow-hidden flex items-center justify-center">
+                  {form.image_url ? (
+                    <>
+                      <img src={form.image_url} alt="Trek preview" className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => setForm(p => ({ ...p, image_url: '' }))}
+                        className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/70 flex items-center justify-center text-white hover:bg-black"
+                        aria-label="Remove image"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </>
+                  ) : (
+                    <div className="text-center text-muted-foreground">
+                      <ImagePlus className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                      <div className="text-xs">No image</div>
+                    </div>
+                  )}
+                </div>
+                <div className="space-y-3">
+                  <div>
+                    <input
+                      id="trek-image-upload"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleImageUpload(file);
+                        e.currentTarget.value = '';
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="border-white/10 gap-2"
+                      disabled={uploadingImage}
+                      onClick={() => document.getElementById('trek-image-upload')?.click()}
+                    >
+                      <Upload className="w-4 h-4" />
+                      {uploadingImage ? 'Uploading...' : 'Upload Image'}
+                    </Button>
+                  </div>
+                  <Input
+                    value={form.image_url}
+                    onChange={e => setForm(p => ({ ...p, image_url: e.target.value }))}
+                    placeholder="Or paste image URL..."
+                    className="bg-white/5 border-white/10"
+                  />
+                </div>
+              </div>
             </div>
             <div>
               <Label className="text-sm mb-1 block">Highlights (one per line)</Label>
@@ -336,7 +431,7 @@ export default function Treks() {
               </label>
             </div>
             <div className="flex gap-3 pt-2">
-              <Button type="submit" className="flex-1" disabled={saving}>
+              <Button type="submit" className="flex-1" disabled={saving || uploadingImage}>
                 {saving ? 'Saving...' : (editingId ? 'Update Trek' : 'Add Trek')}
               </Button>
               <Button type="button" variant="outline" className="border-white/10" onClick={() => setDialogOpen(false)}>
