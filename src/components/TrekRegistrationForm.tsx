@@ -98,7 +98,10 @@ export default function TrekRegistrationForm({ trek, open, onClose }: TrekRegist
     onClose();
   };
 
-  const seatsLeft = trek.max_seats - trek.seats_booked;
+  const maxSeats = Number(trek.max_seats) || 20;
+  const seatsBooked = Number(trek.seats_booked) || 0;
+  const seatsLeft = Math.max(0, maxSeats - seatsBooked);
+  const dropdownOptionsLength = Math.max(1, Math.min(seatsLeft, 10));
   const difficultyColor = {
     easy: 'text-green-400',
     moderate: 'text-yellow-400',
@@ -214,7 +217,7 @@ export default function TrekRegistrationForm({ trek, open, onClose }: TrekRegist
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {Array.from({ length: Math.min(seatsLeft, 10) }, (_, i) => i + 1).map(n => (
+                    {Array.from({ length: dropdownOptionsLength }, (_, i) => i + 1).map(n => (
                       <SelectItem key={n} value={n.toString()}>
                         {n} {n === 1 ? 'Person' : 'People'}
                       </SelectItem>
