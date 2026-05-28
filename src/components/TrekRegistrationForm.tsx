@@ -72,10 +72,8 @@ export default function TrekRegistrationForm({ trek, open, onClose }: TrekRegist
 
       if (trek.isPackage) {
         payload.package_id = trek.id;
-        payload.trek_id = null;
       } else {
         payload.trek_id = trek.id;
-        payload.package_id = null;
       }
 
       const { error } = await supabase.from('trek_registrations').insert([payload]);
