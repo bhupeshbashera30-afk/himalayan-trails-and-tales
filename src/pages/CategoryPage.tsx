@@ -189,7 +189,7 @@ export default function CategoryPage() {
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
   {destinations.map((destination, index) => (
     <motion.div
       key={destination.id}
@@ -199,7 +199,7 @@ export default function CategoryPage() {
       transition={{ duration: 0.6, delay: index * 0.1 }}
     >
       <Card className="group hover:shadow-2xl transition-all duration-500 overflow-hidden glass h-full flex flex-col transform-gpu">
-        <div className="relative overflow-hidden h-64"> 
+        <div className="relative overflow-hidden h-32 md:h-64"> 
           <img
             src={getFirstImage(destination.images, 600)} 
             alt={destination.name}
@@ -207,55 +207,55 @@ export default function CategoryPage() {
             loading="lazy"
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 bg-white/10"
           />
-          <div className="absolute top-4 right-4">
-             <Badge className="bg-primary text-primary-foreground flex items-center space-x-1">
-                <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+          <div className="absolute top-2 right-2 md:top-4 md:right-4">
+             <Badge className="bg-primary text-primary-foreground flex items-center space-x-1 text-[10px] md:text-xs">
+                <Star className="w-2.5 h-2.5 md:w-3 md:h-3 fill-yellow-400 text-yellow-400" />
                 <span>{destination.rating}</span>
              </Badge>
           </div>
         </div>
 
-                <CardHeader>
-                  <CardTitle className="font-serif text-2xl">{destination.name}</CardTitle>
-                  <CardDescription className="flex items-center space-x-1 text-sm">
-                    <MapPin className="w-4 h-4" />
-                    <span>{destination.location}</span>
+                <CardHeader className="p-3 md:p-6 pb-1 md:pb-2">
+                  <CardTitle className="font-serif text-sm md:text-2xl line-clamp-2">{destination.name}</CardTitle>
+                  <CardDescription className="flex items-center space-x-1 text-[11px] md:text-sm">
+                    <MapPin className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
+                    <span className="truncate">{destination.location}</span>
                   </CardDescription>
                 </CardHeader>
 
-                <CardContent className="flex-1 flex flex-col">
-                  <p className="text-muted-foreground mb-4 flex-1">
+                <CardContent className="flex-1 flex flex-col p-3 md:p-6 pt-0 md:pt-0">
+                  <p className="text-muted-foreground mb-2 md:mb-4 flex-1 text-[11px] md:text-base leading-snug md:leading-normal line-clamp-3">
                     {destination.description}
                   </p>
 
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <div className="text-sm font-medium">Features:</div>
+                  <div className="space-y-2 md:space-y-4">
+                    <div className="space-y-1 md:space-y-2">
+                      <div className="text-[11px] md:text-sm font-medium">Features:</div>
                       <div className="flex flex-wrap gap-1">
-                        {destination.features.slice(0, 3).map((feature, i) => (
-                          <Badge key={i} variant="secondary" className="text-xs">
+                        {destination.features.slice(0, 2).map((feature, i) => (
+                          <Badge key={i} variant="secondary" className="text-[10px] md:text-xs px-1.5 md:px-2">
                             {feature}
                           </Badge>
                         ))}
-                        {destination.features.length > 3 && (
-                          <Badge variant="secondary" className="text-xs">
-                            +{destination.features.length - 3} more
+                        {destination.features.length > 2 && (
+                          <Badge variant="secondary" className="text-[10px] md:text-xs px-1.5 md:px-2">
+                            +{destination.features.length - 2} more
                           </Badge>
                         )}
                       </div>
                     </div>
 
-                    <div className="text-lg font-bold text-primary">
+                    <div className="text-sm md:text-lg font-bold text-primary">
                       {destination.price_range || ""}
                     </div>
 
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button
-                          className="w-full group-hover:bg-primary-glow transition-colors"
+                          className="w-full group-hover:bg-primary-glow transition-colors text-[11px] md:text-sm py-1.5 md:py-2 h-auto"
                           onClick={() => setSelectedDestination(destination)}
                         >
-                          <Calendar className="w-4 h-4 mr-2" />
+                          <Calendar className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
                           Book Now
                         </Button>
                       </DialogTrigger>

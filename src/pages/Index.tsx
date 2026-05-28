@@ -89,6 +89,25 @@ function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
+function getDuration(startDate: string, endDate: string) {
+  if (!startDate || !endDate) return null;
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const diffTime = Math.abs(end.getTime() - start.getTime());
+  const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  const nights = Math.max(0, days - 1);
+  return { days, nights };
+}
+
+function getAltitude(highlights: string[]): string | null {
+  if (!Array.isArray(highlights)) return null;
+  for (const h of highlights) {
+    const match = h.match(/(\d[\d,]*\.?\d*)\s*ft/i);
+    if (match) return match[1] + ' ft.';
+  }
+  return null;
+}
+
 export default function Index() {
   const [isCopied, setIsCopied] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -209,12 +228,12 @@ export default function Index() {
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-card">
       {/* Navigation */}
       <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${
-        isScrolled ? 'glass backdrop-blur-xl py-2' : 'bg-transparent py-2 md:py-4'
+        isScrolled ? 'glass backdrop-blur-xl py-2' : 'bg-transparent py-4'
       }`}>
-        <div className="container mx-auto px-4 md:px-6">
+        <div className="container mx-auto px-6">
           <div className="flex items-center justify-between">
             <motion.div
-              className="font-serif text-lg md:text-2xl font-bold gradient-text"
+              className="font-serif text-2xl font-bold gradient-text"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
@@ -400,7 +419,7 @@ export default function Index() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-screen flex items-start md:items-center justify-center overflow-hidden pt-28 md:pt-0">
         <div className="absolute inset-0 bg-gradient-to-br from-background via-card to-background opacity-90" />
         <div className="absolute inset-0">
           <img
@@ -410,9 +429,9 @@ export default function Index() {
           />
         </div>
 
-        <div className="relative z-10 text-center px-4 md:px-6 max-w-6xl mx-auto">
+        <div className="relative z-10 text-center px-6 max-w-6xl mx-auto">
           <motion.h1
-            className="font-serif text-4xl md:text-8xl font-bold mb-4 md:mb-6 gradient-text"
+            className="font-serif text-4xl sm:text-5xl md:text-8xl font-bold mb-6 gradient-text"
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
@@ -421,7 +440,7 @@ export default function Index() {
           </motion.h1>
 
           <motion.p
-            className="text-sm md:text-2xl text-muted-foreground mb-6 md:mb-8 max-w-3xl mx-auto leading-relaxed"
+            className="text-base sm:text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
@@ -477,6 +496,38 @@ export default function Index() {
           </motion.div>
 
           {/* Mobile Categories - 2-column grid below Speak with Expert */}
+          {categories.length > 0 && (
+            <motion.div
+              className="md:hidden mt-10 w-full max-w-sm mx-auto"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.8 }}
+            >
+              <p className="text-xs uppercase tracking-widest text-muted-foreground mb-4 font-semibold">Explore Categories</p>
+              <div className="grid grid-cols-2 gap-3">
+                {categories.map((category) => (
+                  <button
+                    key={category.id}
+                    onClick={() => navigate(`/category/${category.slug}`)}
+                    className="relative rounded-2xl overflow-hidden aspect-square group shadow-lg"
+                  >
+                    <img
+                      src={getCategoryImage(category.id)}
+                      alt={category.name}
+                      className="w-full h-full object-cover group-active:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                    <div className="absolute bottom-0 left-0 right-0 p-3 flex items-center justify-between">
+                      <span className="text-white text-sm font-semibold text-left leading-tight">{category.name}</span>
+                      <div className="w-7 h-7 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0 ml-2">
+                        <ArrowRight className="w-3.5 h-3.5 text-white" />
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          )}
         </div>
 
         {/* Floating elements */}
@@ -487,10 +538,10 @@ export default function Index() {
       {/* ============================================================ */}
       {/* UPCOMING TREKS SECTION */}
       {/* ============================================================ */}
-      <section className="py-20 px-6 bg-gradient-to-r from-card via-background to-card">
+      <section className="py-10 md:py-20 px-4 md:px-6 bg-gradient-to-r from-card via-background to-card">
         <div className="container mx-auto">
           <motion.div
-            className="text-center mb-16"
+            className="text-center mb-8 md:mb-16"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -500,10 +551,10 @@ export default function Index() {
               <Mountain className="w-4 h-4 text-primary" />
               <span className="text-sm text-primary font-medium">Upcoming Adventures</span>
             </div>
-            <h2 className="font-serif text-4xl md:text-5xl font-bold mb-4 gradient-text">
+            <h2 className="font-serif text-2xl md:text-5xl font-bold mb-2 md:mb-4 gradient-text">
               Upcoming Treks
             </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-sm md:text-xl text-muted-foreground max-w-2xl mx-auto">
               Join us on our next Himalayan adventure — register your interest and we'll handle the rest
             </p>
           </motion.div>
@@ -523,7 +574,7 @@ export default function Index() {
               </Button>
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
               {treks.map((trek, index) => {
                 const seatsLeft = trek.max_seats - trek.seats_booked;
                 const seatsPercent = Math.round((trek.seats_booked / trek.max_seats) * 100);
@@ -541,7 +592,7 @@ export default function Index() {
                     viewport={{ once: true }}
                     className="group"
                   >
-                    <div className="glass rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-500 h-full flex flex-col">
+                    <div className="glass rounded-2xl md:rounded-2xl rounded-xl overflow-hidden hover:shadow-2xl transition-all duration-500 h-full flex flex-col">
                       {/* Image */}
                       <div className="relative overflow-hidden h-32 md:h-56">
                         <img
@@ -555,17 +606,17 @@ export default function Index() {
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
                         {/* Difficulty Badge */}
-                        <div className="absolute top-4 left-4">
-                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${diff.color} ${diff.bg} backdrop-blur-sm border border-white/10`}>
+                        <div className="absolute top-2 left-2 md:top-4 md:left-4">
+                          <span className={`inline-flex items-center px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[10px] md:text-xs font-semibold ${diff.color} ${diff.bg} backdrop-blur-sm border border-white/10`}>
                             {diff.label}
                           </span>
                         </div>
 
                         {/* Seats indicator */}
                         {seatsLeft <= 5 && seatsLeft > 0 && (
-                          <div className="absolute top-4 right-4">
-                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold text-orange-400 bg-orange-400/20 backdrop-blur-sm border border-orange-400/20">
-                              <AlertTriangle className="w-3 h-3" />
+                          <div className="absolute top-2 right-2 md:top-4 md:right-4">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 md:px-3 md:py-1 rounded-full text-[10px] md:text-xs font-semibold text-orange-400 bg-orange-400/20 backdrop-blur-sm border border-orange-400/20">
+                              <AlertTriangle className="w-2.5 h-2.5 md:w-3 md:h-3" />
                               Only {seatsLeft} left!
                             </span>
                           </div>
@@ -573,73 +624,77 @@ export default function Index() {
 
                         {/* Price overlay */}
                         {trek.price && (
-                          <div className="absolute bottom-4 right-4">
-                            <div className="bg-primary/90 backdrop-blur-sm text-white px-3 py-1 rounded-lg">
-                              <span className="text-xs">From</span>
-                              <div className="font-bold text-sm">₹{trek.price.toLocaleString()}</div>
+                          <div className="absolute bottom-2 right-2 md:bottom-4 md:right-4">
+                            <div className="bg-primary/90 backdrop-blur-sm text-white px-2 py-0.5 md:px-3 md:py-1 rounded-lg">
+                              <span className="text-[10px] md:text-xs">From</span>
+                              <div className="font-bold text-xs md:text-sm">₹{trek.price.toLocaleString()}</div>
                             </div>
                           </div>
                         )}
                       </div>
 
                       {/* Content */}
-                      <div className="p-5 flex flex-col flex-1">
-                        <h3 className="font-serif text-xl font-bold mb-1">{trek.name}</h3>
-                        <div className="flex items-center gap-1.5 text-muted-foreground text-sm mb-3">
-                          <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
-                          <span>{trek.location}</span>
+                      <div className="p-3 md:p-5 flex flex-col flex-1">
+                        <h3 className="font-serif text-sm md:text-xl font-bold mb-1.5 md:mb-2 line-clamp-2">{trek.name}</h3>
+
+                        {/* Compact 2-column info grid */}
+                        <div className="grid grid-cols-2 gap-x-2 gap-y-1 md:gap-y-1.5 mb-2 md:mb-3 text-[11px] md:text-sm">
+                          {/* Location */}
+                          <div className="flex items-center gap-1 text-muted-foreground">
+                            <MapPin className="w-3 h-3 md:w-3.5 md:h-3.5 flex-shrink-0 text-primary" />
+                            <span className="truncate">{trek.location?.split(',')[0]}</span>
+                          </div>
+                          {/* Difficulty */}
+                          <div className="flex items-center gap-1">
+                            <ArrowRight className="w-3 h-3 md:w-3.5 md:h-3.5 flex-shrink-0 text-primary rotate-[-45deg]" />
+                            <span className={diff.color}>{diff.label}</span>
+                          </div>
+                          {/* Duration */}
+                          {(() => {
+                            const dur = getDuration(trek.start_date, trek.end_date);
+                            return dur ? (
+                              <div className="flex items-center gap-1 text-muted-foreground">
+                                <Calendar className="w-3 h-3 md:w-3.5 md:h-3.5 flex-shrink-0 text-primary" />
+                                <span>{dur.days} Days, {dur.nights} Nights</span>
+                              </div>
+                            ) : null;
+                          })()}
+                          {/* Altitude */}
+                          {(() => {
+                            const alt = getAltitude(trek.highlights);
+                            return alt ? (
+                              <div className="flex items-center gap-1 text-muted-foreground">
+                                <Mountain className="w-3 h-3 md:w-3.5 md:h-3.5 flex-shrink-0 text-primary" />
+                                <span>{alt}</span>
+                              </div>
+                            ) : null;
+                          })()}
                         </div>
 
-                        {/* Dates */}
-                        {trek.start_date && (
-                          <div className="flex items-center gap-1.5 text-sm mb-3">
-                            <Calendar className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-                            <span className="text-foreground font-medium">
-                              {formatDate(trek.start_date)}
-                              {trek.end_date && ` — ${formatDate(trek.end_date)}`}
-                            </span>
-                          </div>
-                        )}
-
-                        <p className="text-muted-foreground text-sm leading-relaxed mb-4 line-clamp-2 flex-1">
-                          {trek.description}
-                        </p>
-
-                        {/* Highlights */}
-                        {Array.isArray(trek.highlights) && trek.highlights.length > 0 && (
-                          <div className="flex flex-wrap gap-1.5 mb-4">
-                            {trek.highlights.slice(0, 2).map((h: string, i: number) => (
-                              <span key={i} className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
-                                {h}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-
                         {/* Seats progress */}
-                        <div className="mb-4">
-                          <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+                        <div className="mb-2 md:mb-4">
+                          <div className="flex items-center justify-between text-[10px] md:text-xs text-muted-foreground mb-1">
                             <span className="flex items-center gap-1">
-                              <Users className="w-3 h-3" />
+                              <Users className="w-2.5 h-2.5 md:w-3 md:h-3" />
                               {seatsLeft} of {trek.max_seats} seats available
                             </span>
                             <span>{seatsPercent}% full</span>
                           </div>
-                          <div className="w-full bg-white/10 rounded-full h-1.5">
+                          <div className="w-full bg-white/10 rounded-full h-1 md:h-1.5">
                             <div
-                              className="bg-primary rounded-full h-1.5 transition-all duration-500"
+                              className="bg-primary rounded-full h-1 md:h-1.5 transition-all duration-500"
                               style={{ width: `${seatsPercent}%` }}
                             />
                           </div>
                         </div>
 
                         <Button
-                          className="w-full pulse-glow mt-auto"
+                          className="w-full pulse-glow mt-auto text-[11px] md:text-sm py-1.5 md:py-2 h-auto"
                           onClick={() => openTrekRegistration(trek)}
                           disabled={seatsLeft <= 0}
                         >
                           {seatsLeft <= 0 ? 'Fully Booked' : 'Register Interest'}
-                          {seatsLeft > 0 && <ArrowRight className="w-4 h-4 ml-2" />}
+                          {seatsLeft > 0 && <ArrowRight className="w-3 h-3 md:w-4 md:h-4 ml-1 md:ml-2" />}
                         </Button>
                       </div>
                     </div>
@@ -652,24 +707,24 @@ export default function Index() {
       </section>
 
       {/* Featured Packages */}
-      <section className="py-20 px-6">
+      <section className="py-10 md:py-20 px-4 md:px-6">
         <div className="container mx-auto">
           <motion.div
-            className="text-center mb-16"
+            className="text-center mb-8 md:mb-16"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <h2 className="font-serif text-4xl md:text-5xl font-bold mb-4 gradient-text">
+            <h2 className="font-serif text-2xl md:text-5xl font-bold mb-2 md:mb-4 gradient-text">
               Curated Experiences
             </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-sm md:text-xl text-muted-foreground max-w-2xl mx-auto">
               Handpicked packages that showcase the best of Pahadi culture, adventure, and serenity
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
             {packages.map((pkg, index) => (
               <motion.div
                 key={pkg.id}
@@ -678,41 +733,41 @@ export default function Index() {
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <Card className="group hover:shadow-2xl transition-all duration-500 overflow-glass">
+                <Card className="group hover:shadow-2xl transition-all duration-500 overflow-glass h-full flex flex-col">
                   <div className="relative overflow-hidden">
                     <img
                       src={getFirstImage(pkg.images)}
                       alt={pkg.name}
-                      className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-700"
+                      className="w-full h-32 md:h-48 object-cover group-hover:scale-110 transition-transform duration-700"
                     />
-                    <div className="absolute top-4 right-4">
-                      <Badge className="bg-primary text-primary-foreground">
+                    <div className="absolute top-2 right-2 md:top-4 md:right-4">
+                      <Badge className="bg-primary text-primary-foreground text-[10px] md:text-xs">
                         {pkg.duration_days} Days
                       </Badge>
                     </div>
                   </div>
 
-                  <CardHeader>
-                    <CardTitle className="font-serif text-xl">{pkg.name}</CardTitle>
-                    <CardDescription className="text-sm leading-relaxed">
+                  <CardHeader className="p-3 md:p-6 pb-1 md:pb-2">
+                    <CardTitle className="font-serif text-sm md:text-xl line-clamp-2">{pkg.name}</CardTitle>
+                    <CardDescription className="text-[11px] md:text-sm leading-snug md:leading-relaxed line-clamp-2 md:line-clamp-none">
                       {pkg.description}
                     </CardDescription>
                   </CardHeader>
 
-                  <CardContent>
-                    <div className="space-y-4">
+                  <CardContent className="p-3 md:p-6 pt-0 md:pt-0 flex-1 flex flex-col">
+                    <div className="space-y-2 md:space-y-4 flex-1">
                       <div className="flex items-center justify-between">
-                        <span className="text-2xl font-bold text-primary">{pkg.price ? `₹${pkg.price.toLocaleString()}` : ""}</span>
-                        <span className="text-sm text-muted-foreground">per person</span>
+                        <span className="text-base md:text-2xl font-bold text-primary">{pkg.price ? `₹${pkg.price.toLocaleString()}` : ""}</span>
+                        <span className="text-[10px] md:text-sm text-muted-foreground">per person</span>
                       </div>
-                      <div className="space-y-2">
-                        <div className="text-sm font-medium">Includes:</div>
+                      <div className="space-y-1 md:space-y-2">
+                        <div className="text-[11px] md:text-sm font-medium">Includes:</div>
                         <div className="flex flex-wrap gap-1">
-                          {pkg.inclusions.slice(0, 3).map((inclusion, i) => (
-                            <Badge key={i} variant="secondary" className="text-xs">{inclusion}</Badge>
+                          {pkg.inclusions.slice(0, 2).map((inclusion, i) => (
+                            <Badge key={i} variant="secondary" className="text-[10px] md:text-xs px-1.5 md:px-2">{inclusion}</Badge>
                           ))}
-                          {pkg.inclusions.length > 3 && (
-                            <Badge variant="secondary" className="text-xs">+{pkg.inclusions.length - 3} more</Badge>
+                          {pkg.inclusions.length > 2 && (
+                            <Badge variant="secondary" className="text-[10px] md:text-xs px-1.5 md:px-2">+{pkg.inclusions.length - 2} more</Badge>
                           )}
                         </div>
                       </div>
@@ -800,13 +855,41 @@ export default function Index() {
               );
             })}
           </div>
+
+          {/* Mobile: image grid (visible only on mobile, categories also shown in Hero) */}
+          <div className="md:hidden grid grid-cols-2 gap-4">
+            {categories.map((category, index) => (
+              <motion.button
+                key={category.id}
+                onClick={() => navigate(`/category/${category.slug}`)}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.08 }}
+                viewport={{ once: true }}
+                className="relative rounded-2xl overflow-hidden aspect-square group shadow-lg"
+              >
+                <img
+                  src={getCategoryImage(category.id)}
+                  alt={category.name}
+                  className="w-full h-full object-cover group-active:scale-105 transition-transform duration-300"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-3 flex items-center justify-between">
+                  <span className="text-white text-sm font-semibold text-left leading-tight">{category.name}</span>
+                  <div className="w-7 h-7 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0 ml-2">
+                    <ArrowRight className="w-3.5 h-3.5 text-white" />
+                  </div>
+                </div>
+              </motion.button>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* Footer */}
       <footer className="bg-card py-16 px-6">
         <div className="container mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
             <div>
               <div className="font-serif text-2xl font-bold gradient-text mb-4">
                 Himalayan Trails &amp; Tales
