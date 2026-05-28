@@ -869,6 +869,7 @@ export default function Index() {
             </p>
           </motion.div>
 
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 md:gap-8">
             {packages.map((pkg, index) => {
               const diff = difficultyConfig[pkg.difficulty || 'moderate'] || difficultyConfig.moderate;
               const maxSeats = pkg.max_seats || 15;
@@ -965,6 +966,7 @@ export default function Index() {
                 </motion.div>
               );
             })}
+          </div>
         </div>
       </section>
 
