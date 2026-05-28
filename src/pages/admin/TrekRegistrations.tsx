@@ -9,7 +9,8 @@ import { useToast } from '@/hooks/use-toast';
 
 interface TrekReg {
   id: string;
-  trek_id: string;
+  trek_id: string | null;
+  package_id?: string | null;
   trek_name: string;
   name: string;
   email: string;
@@ -117,6 +118,9 @@ export default function TrekRegistrations() {
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-medium text-white">{r.name}</span>
                     <span className="text-xs text-primary bg-primary/10 px-2 py-0.5 rounded-full">{r.trek_name}</span>
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${r.package_id ? 'text-indigo-400 bg-indigo-400/10' : 'text-green-400 bg-green-400/10'}`}>
+                      {r.package_id ? 'Package' : 'Trek'}
+                    </span>
                     <span className={`text-xs px-2 py-0.5 rounded-full capitalize ${statusColor[r.status] || 'text-gray-400 bg-gray-400/10'}`}>
                       {r.status}
                     </span>

@@ -53,6 +53,12 @@ interface Package {
   exclusions: string[];
   images: string[];
   is_featured: boolean;
+  start_date?: string;
+  end_date?: string;
+  location?: string;
+  difficulty?: string;
+  max_seats?: number;
+  seats_booked?: number;
 }
 
 interface Trek {
@@ -194,7 +200,7 @@ export default function Index() {
   const [testimonials, setTestimonials] = useState<any[]>(staticTestimonials);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [selectedTrek, setSelectedTrek] = useState<Trek | null>(null);
+  const [selectedTrek, setSelectedTrek] = useState<any | null>(null);
   const [trekFormOpen, setTrekFormOpen] = useState(false);
   const [contactForm, setContactForm] = useState({
     name: '',
@@ -233,9 +239,27 @@ export default function Index() {
       )
       .subscribe();
 
+    // Subscribe to real-time changes on the "packages" table
+    const packagesChannel = supabase
+      .channel('packages-realtime-homepage')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'packages_2025_10_14_17_34' },
+        async (payload) => {
+          // Re-fetch packages when any change occurs
+          const { data } = await supabase
+            .from('packages_2025_10_14_17_34')
+            .select('*')
+            .eq('is_featured', true);
+          if (data) setPackages(data as Package[]);
+        }
+      )
+      .subscribe();
+
     return () => {
       window.removeEventListener('scroll', handleScroll);
       supabase.removeChannel(treksChannel);
+      supabase.removeChannel(packagesChannel);
     };
   }, []);
 
@@ -330,8 +354,8 @@ export default function Index() {
     }));
   };
 
-  const openTrekRegistration = (trek: Trek) => {
-    setSelectedTrek(trek);
+  const openTrekRegistration = (item: any, isPackage: boolean = false) => {
+    setSelectedTrek({ ...item, isPackage });
     setTrekFormOpen(true);
   };
 
@@ -845,59 +869,102 @@ export default function Index() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 md:gap-8">
-            {packages.map((pkg, index) => (
-              <motion.div
-                key={pkg.id}
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                viewport={{ once: true }}
-              >
-                <Card className="group hover:shadow-2xl transition-all duration-500 overflow-glass h-full flex flex-col">
-                  <div className="relative overflow-hidden">
-                    <img
-                      src={getFirstImage(pkg.images, 600)}
-                      alt={pkg.name}
-                      className="w-full h-32 md:h-48 object-cover group-hover:scale-110 transition-transform duration-700"
-                    />
-                    <div className="absolute top-2 right-2 md:top-4 md:right-4">
-                      <Badge className="bg-primary text-primary-foreground text-[10px] md:text-xs">
-                        {pkg.duration_days} Days
-                      </Badge>
+            {packages.map((pkg, index) => {
+              const diff = difficultyConfig[pkg.difficulty || 'moderate'] || difficultyConfig.moderate;
+              const maxSeats = pkg.max_seats || 15;
+              const seatsBooked = pkg.seats_booked || 0;
+              const seatsLeft = maxSeats - seatsBooked;
+              const seatsPercent = Math.round((seatsBooked / maxSeats) * 100);
+
+              return (
+                <motion.div
+                  key={pkg.id}
+                  className="flex"
+                  initial={{ opacity: 0, y: 50 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                >
+                  <div className="w-full bg-[#161622]/60 backdrop-blur-md border border-white/5 rounded-2xl overflow-hidden hover:border-primary/30 transition-all duration-500 flex flex-col group shadow-lg">
+                    {/* Image container */}
+                    <div className="relative h-32 md:h-52 overflow-hidden flex-shrink-0">
+                      <img
+                        src={getFirstImage(pkg.images, 600)}
+                        alt={pkg.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                      />
+                      {/* Price Badge */}
+                      {pkg.price && (
+                        <div className="absolute bottom-2 right-2 md:bottom-3 md:right-3 bg-black/60 backdrop-blur-md text-white px-2 py-0.5 md:px-2.5 md:py-1 rounded-lg border border-white/10 flex items-center">
+                          <div className="text-right">
+                            <span className="text-[10px] md:text-xs">From</span>
+                            <div className="font-bold text-xs md:text-sm">₹{pkg.price.toLocaleString()}</div>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  </div>
 
-                  <CardHeader className="p-3 md:p-6 pb-1 md:pb-2">
-                    <CardTitle className="font-serif text-sm md:text-xl line-clamp-2">{pkg.name}</CardTitle>
-                    <CardDescription className="text-[11px] md:text-sm leading-snug md:leading-relaxed line-clamp-2 md:line-clamp-none">
-                      {pkg.description}
-                    </CardDescription>
-                  </CardHeader>
+                    {/* Content */}
+                    <div className="p-3 md:p-5 flex flex-col flex-1">
+                      <h3 className="font-serif text-sm md:text-xl font-bold mb-1.5 md:mb-2 line-clamp-2 text-white">{pkg.name}</h3>
+                      <p className="text-[11px] md:text-xs text-muted-foreground line-clamp-2 mb-2 md:mb-3">{pkg.description}</p>
 
-                  <CardContent className="p-3 md:p-6 pt-0 md:pt-0 flex-1 flex flex-col">
-                    <div className="space-y-2 md:space-y-4 flex-1">
-                      <div className="flex items-center justify-between">
-                        <span className="text-base md:text-2xl font-bold text-primary">{pkg.price ? `₹${pkg.price.toLocaleString()}` : ""}</span>
-                        <span className="text-[10px] md:text-sm text-muted-foreground">per person</span>
+                      {/* Compact 2-column info grid */}
+                      <div className="grid grid-cols-2 gap-x-2 gap-y-1 md:gap-y-1.5 mb-2 md:mb-3 text-[11px] md:text-sm">
+                        {/* Location */}
+                        <div className="flex items-center gap-1 text-muted-foreground min-w-0">
+                          <MapPin className="w-3 h-3 md:w-3.5 md:h-3.5 flex-shrink-0 text-primary" />
+                          <span className="truncate">{pkg.location || 'Uttarakhand'}</span>
+                        </div>
+                        {/* Difficulty */}
+                        <div className="flex items-center gap-1 min-w-0">
+                          <ArrowRight className="w-3 h-3 md:w-3.5 md:h-3.5 flex-shrink-0 text-primary rotate-[-45deg]" />
+                          <span className={`${diff.color} truncate`}>{diff.label}</span>
+                        </div>
+                        {/* Duration */}
+                        <div className="flex items-center gap-1 text-muted-foreground min-w-0">
+                          <Calendar className="w-3 h-3 md:w-3.5 md:h-3.5 flex-shrink-0 text-primary" />
+                          <span className="truncate">{pkg.duration_days} Days</span>
+                        </div>
+                        {/* Date Range (if set) */}
+                        {pkg.start_date && (
+                          <div className="flex items-center gap-1 text-muted-foreground min-w-0">
+                            <Calendar className="w-3 h-3 md:w-3.5 md:h-3.5 flex-shrink-0 text-primary" />
+                            <span className="truncate">{formatDate(pkg.start_date)}</span>
+                          </div>
+                        )}
                       </div>
-                      <div className="space-y-1 md:space-y-2">
-                        <div className="text-[11px] md:text-sm font-medium">Includes:</div>
-                        <div className="flex flex-wrap gap-1">
-                          {pkg.inclusions.slice(0, 2).map((inclusion, i) => (
-                            <Badge key={i} variant="secondary" className="text-[10px] md:text-xs px-1.5 md:px-2">{inclusion}</Badge>
-                          ))}
-                          {pkg.inclusions.length > 2 && (
-                            <Badge variant="secondary" className="text-[10px] md:text-xs px-1.5 md:px-2">+{pkg.inclusions.length - 2} more</Badge>
-                          )}
+
+                      {/* Seats progress */}
+                      <div className="mb-2 md:mb-4">
+                        <div className="flex items-center justify-between text-[10px] md:text-xs text-muted-foreground mb-1">
+                          <span className="flex items-center gap-1">
+                            <Users className="w-2.5 h-2.5 md:w-3 md:h-3" />
+                            {seatsLeft} of {maxSeats} seats available
+                          </span>
+                          <span>{seatsPercent}% full</span>
+                        </div>
+                        <div className="w-full bg-white/10 rounded-full h-1 md:h-1.5">
+                          <div
+                            className="bg-primary rounded-full h-1 md:h-1.5 transition-all duration-500"
+                            style={{ width: `${seatsPercent}%` }}
+                          />
                         </div>
                       </div>
+
+                      <Button
+                        className="w-full pulse-glow mt-auto text-[11px] md:text-sm py-1.5 md:py-2 h-auto"
+                        onClick={() => openTrekRegistration(pkg, true)}
+                        disabled={seatsLeft <= 0}
+                      >
+                        {seatsLeft <= 0 ? 'Fully Booked' : 'Register Interest'}
+                        {seatsLeft > 0 && <ArrowRight className="w-3 h-3 md:w-4 md:h-4 ml-1 md:ml-2" />}
+                      </Button>
                     </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
+                  </div>
+                </motion.div>
+              );
+            })}
         </div>
       </section>
 

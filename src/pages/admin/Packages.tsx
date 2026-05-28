@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface Package {
   id: string;
@@ -25,6 +26,12 @@ interface Package {
   is_featured: boolean;
   is_custom: boolean;
   created_at: string;
+  start_date?: string;
+  end_date?: string;
+  location?: string;
+  difficulty?: string;
+  max_seats?: number;
+  seats_booked?: number;
 }
 
 const emptyPackage = {
@@ -38,6 +45,12 @@ const emptyPackage = {
   image_url: '',
   is_featured: true,
   is_custom: false,
+  start_date: '',
+  end_date: '',
+  location: 'Uttarakhand, India',
+  difficulty: 'moderate',
+  max_seats: '15',
+  seats_booked: '0',
 };
 
 export default function Packages() {
@@ -96,6 +109,12 @@ export default function Packages() {
       image_url: Array.isArray(pkg.images) && pkg.images.length > 0 ? pkg.images[0] : '',
       is_featured: Boolean(pkg.is_featured),
       is_custom: Boolean(pkg.is_custom),
+      start_date: pkg.start_date || '',
+      end_date: pkg.end_date || '',
+      location: pkg.location || '',
+      difficulty: pkg.difficulty || 'moderate',
+      max_seats: pkg.max_seats?.toString() || '15',
+      seats_booked: pkg.seats_booked?.toString() || '0',
     });
     setDeleteConfirm(null);
     setDialogOpen(true);
@@ -120,6 +139,12 @@ export default function Packages() {
       images: form.image_url ? [form.image_url] : [],
       is_featured: form.is_featured,
       is_custom: form.is_custom,
+      start_date: form.start_date || null,
+      end_date: form.end_date || null,
+      location: form.location,
+      difficulty: form.difficulty,
+      max_seats: parseInt(form.max_seats) || 15,
+      seats_booked: parseInt(form.seats_booked) || 0,
     };
 
     try {
@@ -367,6 +392,46 @@ export default function Packages() {
                   <Switch checked={form.is_custom} onCheckedChange={checked => setForm(p => ({ ...p, is_custom: checked }))} />
                   <span className="text-sm">Custom Package</span>
                 </label>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <Label className="text-sm mb-1 block">Location</Label>
+                <Input value={form.location} onChange={e => setForm(p => ({ ...p, location: e.target.value }))} placeholder="e.g. Uttarakhand, India" className="bg-white/5 border-white/10" />
+              </div>
+              <div>
+                <Label className="text-sm mb-1 block">Difficulty</Label>
+                <Select value={form.difficulty} onValueChange={val => setForm(p => ({ ...p, difficulty: val }))}>
+                  <SelectTrigger className="bg-white/5 border-white/10"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="easy">Easy</SelectItem>
+                    <SelectItem value="moderate">Moderate</SelectItem>
+                    <SelectItem value="hard">Hard</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <Label className="text-sm mb-1 block">Start Date</Label>
+                <Input type="date" value={form.start_date} onChange={e => setForm(p => ({ ...p, start_date: e.target.value }))} className="bg-white/5 border-white/10" />
+              </div>
+              <div>
+                <Label className="text-sm mb-1 block">End Date</Label>
+                <Input type="date" value={form.end_date} onChange={e => setForm(p => ({ ...p, end_date: e.target.value }))} className="bg-white/5 border-white/10" />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <Label className="text-sm mb-1 block">Max Seats</Label>
+                <Input type="number" value={form.max_seats} onChange={e => setForm(p => ({ ...p, max_seats: e.target.value }))} className="bg-white/5 border-white/10" />
+              </div>
+              <div>
+                <Label className="text-sm mb-1 block">Seats Booked</Label>
+                <Input type="number" value={form.seats_booked} onChange={e => setForm(p => ({ ...p, seats_booked: e.target.value }))} className="bg-white/5 border-white/10" />
               </div>
             </div>
 

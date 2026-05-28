@@ -10,20 +10,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
-interface Trek {
+interface RegistrationItem {
   id: string;
   name: string;
   location: string;
-  start_date: string;
-  end_date: string;
-  price: number;
+  start_date?: string;
+  end_date?: string;
+  price: number | null;
   difficulty: string;
   max_seats: number;
   seats_booked: number;
+  isPackage?: boolean;
 }
 
 interface TrekRegistrationFormProps {
-  trek: Trek;
+  trek: RegistrationItem;
   open: boolean;
   onClose: () => void;
 }
@@ -59,8 +60,7 @@ export default function TrekRegistrationForm({ trek, open, onClose }: TrekRegist
 
     setLoading(true);
     try {
-      const { error } = await supabase.from('trek_registrations').insert([{
-        trek_id: trek.id,
+      const payload: any = {
         trek_name: trek.name,
         name: form.name,
         email: form.email,
@@ -68,7 +68,17 @@ export default function TrekRegistrationForm({ trek, open, onClose }: TrekRegist
         num_people: parseInt(form.num_people),
         message: form.message,
         status: 'new',
-      }]);
+      };
+
+      if (trek.isPackage) {
+        payload.package_id = trek.id;
+        payload.trek_id = null;
+      } else {
+        payload.trek_id = trek.id;
+        payload.package_id = null;
+      }
+
+      const { error } = await supabase.from('trek_registrations').insert([payload]);
 
       if (error) throw error;
 
@@ -123,7 +133,7 @@ export default function TrekRegistrationForm({ trek, open, onClose }: TrekRegist
         ) : (
           <>
             <DialogHeader>
-              <DialogTitle className="font-serif text-xl">Register for Trek</DialogTitle>
+              <DialogTitle className="font-serif text-xl">{trek.isPackage ? 'Register for Package' : 'Register for Trek'}</DialogTitle>
             </DialogHeader>
  
             {/* Trek Summary */}
@@ -144,7 +154,7 @@ export default function TrekRegistrationForm({ trek, open, onClose }: TrekRegist
                     </span>
                     {trek.price && (
                       <span className="text-xs font-medium text-primary">
-                        ₹{trek.price.toLocaleString()}/person
+                        ₹{Number(trek.price).toLocaleString()}/person
                       </span>
                     )}
                   </div>
