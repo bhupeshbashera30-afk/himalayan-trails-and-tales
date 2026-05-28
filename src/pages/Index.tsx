@@ -218,7 +218,7 @@ export default function Index() {
   const getCategoryImage = (categoryId: string) => {
     const dests = getDestinationsByCategory(categoryId);
     if (dests.length > 0) {
-      const img = getFirstImage(dests[0].images);
+      const img = getFirstImage(dests[0].images, 600);
       if (img) return img;
     }
     return 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=400&fit=crop';
@@ -275,7 +275,7 @@ export default function Index() {
                             {getDestinationsByCategory(category.id).slice(0, 2).map((destination) => (
                               <div key={destination.id} className="flex items-start space-x-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
                                 <img
-                                  src={getFirstImage(destination.images)}
+                                  src={getFirstImage(destination.images, 100)}
                                   alt={destination.name}
                                   className="w-12 h-12 rounded-lg object-cover"
                                 />
@@ -736,7 +736,7 @@ export default function Index() {
                 <Card className="group hover:shadow-2xl transition-all duration-500 overflow-glass h-full flex flex-col">
                   <div className="relative overflow-hidden">
                     <img
-                      src={getFirstImage(pkg.images)}
+                      src={getFirstImage(pkg.images, 600)}
                       alt={pkg.name}
                       className="w-full h-32 md:h-48 object-cover group-hover:scale-110 transition-transform duration-700"
                     />
@@ -826,7 +826,7 @@ export default function Index() {
                         {categoryDestinations.slice(0, 3).map((destination) => (
                           <div key={destination.id} className="flex items-center space-x-3">
                             <img
-                              src={getFirstImage(destination.images)}
+                              src={getFirstImage(destination.images, 100)}
                               alt={destination.name}
                               decoding="async"
                               loading="lazy"

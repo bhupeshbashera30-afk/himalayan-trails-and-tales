@@ -5,7 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 // src/lib/utils.ts
-export const getFirstImage = (images: any, width: number = 100): string => {
+export const getFirstImage = (images: any, width: number = 600): string => {
   let url = '/placeholder.jpg';
 
   // 1. SAFELY EXTRACT THE URL
