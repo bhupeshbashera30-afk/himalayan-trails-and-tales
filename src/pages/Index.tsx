@@ -285,7 +285,7 @@ export default function Index() {
 
             <Dialog>
               <DialogTrigger asChild>
-                <Button className="pulse-glow">Plan Your Journey</Button>
+                <Button className="pulse-glow hidden md:inline-flex">Plan Your Journey</Button>
               </DialogTrigger>
               <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
@@ -479,12 +479,12 @@ export default function Index() {
           {/* Mobile Categories - 2-column grid below Speak with Expert */}
           {categories.length > 0 && (
             <motion.div
-              className="md:hidden mt-10 w-full max-w-sm mx-auto"
+              className="md:hidden mt-16 w-full max-w-sm mx-auto pb-8"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.8 }}
             >
-              <p className="text-xs uppercase tracking-widest text-muted-foreground mb-4 font-semibold">Explore Categories</p>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground mb-6 font-semibold">Explore Categories</p>
               <div className="grid grid-cols-2 gap-3">
                 {categories.map((category) => (
                   <button
