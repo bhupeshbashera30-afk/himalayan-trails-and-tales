@@ -158,7 +158,18 @@ export default function Index() {
 
   const [isCopied, setIsCopied] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const phoneNumber = "+918630113945";
+  const [siteSettings, setSiteSettings] = useState({
+    siteName: 'Himalayan Trails & Tales',
+    tagline: 'Discover Pahadi Spirit',
+    phone: '+91 8630113945',
+    email: 'himalayantrailtales@gmail.com',
+    address: 'Haldwani, Uttarakhand',
+    instagram: '',
+    facebook: '',
+    youtube: '',
+  });
+
+  const cleanPhone = siteSettings.phone.replace(/\s+/g, '');
 
   const handleSmartContact = () => {
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -170,7 +181,7 @@ export default function Index() {
   };
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(phoneNumber);
+    navigator.clipboard.writeText(cleanPhone);
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2000);
     setShowMobileMenu(false);
@@ -235,6 +246,31 @@ export default function Index() {
       }
     } catch (err) {
       console.warn('Error fetching testimonials, using fallback:', err);
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('site_settings')
+        .select('*')
+        .eq('id', 'default')
+        .maybeSingle();
+      
+      if (!error && data) {
+        setSiteSettings({
+          siteName: data.site_name || 'Himalayan Trails & Tales',
+          tagline: data.tagline || 'Discover Pahadi Spirit',
+          phone: data.phone || '+91 8630113945',
+          email: data.email || 'himalayantrailtales@gmail.com',
+          address: data.address || 'Haldwani, Uttarakhand',
+          instagram: data.instagram || '',
+          facebook: data.facebook || '',
+          youtube: data.youtube || '',
+        });
+      } else if (error) {
+        console.warn('Could not fetch site settings from database, using fallback:', error.message);
+      }
+    } catch (err) {
+      console.warn('Error fetching site settings, using fallback:', err);
     }
   };
 
@@ -301,7 +337,7 @@ export default function Index() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
             >
-              Himalayan Trails &amp; Tales
+              {siteSettings.siteName}
             </motion.div>
 
             <div className="hidden md:flex items-center space-x-8">
@@ -499,7 +535,7 @@ export default function Index() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            Discover Pahadi Spirit
+            {siteSettings.tagline}
           </motion.h1>
 
           <motion.p
@@ -544,9 +580,9 @@ export default function Index() {
                     <DialogTitle>Contact Expert</DialogTitle>
                   </DialogHeader>
                   <div className="flex flex-col gap-4 py-4">
-                    <Button size="lg" className="w-full gap-2" onClick={() => window.location.href = `tel:${phoneNumber}`}>
+                    <Button size="lg" className="w-full gap-2" onClick={() => window.location.href = `tel:${cleanPhone}`}>
                       <Phone className="w-4 h-4" />
-                      Call Now ({phoneNumber})
+                      Call Now ({siteSettings.phone})
                     </Button>
                     <Button variant="secondary" size="lg" className="w-full gap-2" onClick={copyToClipboard}>
                       <Copy className="w-4 h-4" />
@@ -936,7 +972,7 @@ export default function Index() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
             <div>
               <div className="font-serif text-2xl font-bold gradient-text mb-4">
-                Himalayan Trails &amp; Tales
+                {siteSettings.siteName}
               </div>
               <p className="text-muted-foreground mb-4">
                 Your gateway to authentic Pahadi experiences, connecting you with the heart and soul of the Himalayas.
@@ -950,7 +986,7 @@ export default function Index() {
                   )}
                   {isCopied ? "Copied!" : "Call Us"}
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => window.location.href = "mailto:himalayantrailtales@gmail.com"}>
+                <Button variant="outline" size="sm" onClick={() => window.location.href = `mailto:${siteSettings.email}`}>
                   <Mail className="w-4 h-4 mr-2" />
                   Email
                 </Button>
@@ -980,22 +1016,22 @@ export default function Index() {
               <div className="space-y-2 text-sm text-muted-foreground">
                 <div className="flex items-center space-x-2">
                   <MapPin className="w-4 h-4" />
-                  <span>Haldwani, Uttarakhand</span>
+                  <span>{siteSettings.address}</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Phone className="w-4 h-4" />
-                  <span>+91 8630113945</span>
+                  <span>{siteSettings.phone}</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Mail className="w-4 h-4" />
-                  <span>himalayantrailtales@gmail.com</span>
+                  <span>{siteSettings.email}</span>
                 </div>
               </div>
             </div>
           </div>
 
           <div className="border-t border-border mt-12 pt-8 text-center text-sm text-muted-foreground">
-            <p>&copy; 2025 Himalayan Trails &amp; Tales. All rights reserved. Crafted with ❤️ for mountain lovers.</p>
+            <p>&copy; 2025 {siteSettings.siteName}. All rights reserved. Crafted with ❤️ for mountain lovers.</p>
           </div>
         </div>
       </footer>
