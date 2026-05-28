@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
-  MessageSquare, Pencil, Plus, RefreshCw, Star, Trash2, X
+  MessageSquare, Pencil, Plus, RefreshCw, Star, Trash2, X, AlertTriangle
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -21,6 +21,41 @@ interface Testimonial {
   created_at: string;
 }
 
+const staticTestimonials: Testimonial[] = [
+  {
+    id: '1',
+    text: "Himalayan Trails & Tales turned my Valley of Flowers trek into something straight out of a dream. Every detail was perfect, from the local stays to the experienced guides.",
+    rating: 5,
+    name: "Priya Sharma",
+    trek: "VALLEY OF FLOWERS",
+    created_at: new Date().toISOString()
+  },
+  {
+    id: '2',
+    text: "The Chopta Chandrashila trek was breathtaking. The sunset, the snow peaks, the camp setup under the stars, it felt like a dream. Truly unforgettable experience.",
+    rating: 5,
+    name: "Rohan & Ananya",
+    trek: "CHOPTA CHANDRASHILA",
+    created_at: new Date().toISOString()
+  },
+  {
+    id: '3',
+    text: "Professional, creative, and so easy to travel with. Our group trip to Kedarkantha was absolutely stunning. The local organic food was a massive hit with everyone!",
+    rating: 5,
+    name: "Meera Kapoor",
+    trek: "KEDARKANTHA TREK",
+    created_at: new Date().toISOString()
+  },
+  {
+    id: '4',
+    text: "I wanted the Har Ki Dun trek to be perfect and Himalayan Trails & Tales delivered beyond my expectations. The view of the peaks was the most beautiful setting imaginable.",
+    rating: 5,
+    name: "Vikram Patel",
+    trek: "HAR KI DUN TREK",
+    created_at: new Date().toISOString()
+  }
+];
+
 const emptyTestimonial = {
   name: '',
   text: '',
@@ -37,6 +72,7 @@ export default function Testimonials() {
   const [form, setForm] = useState(emptyTestimonial);
   const [saving, setSaving] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [isFallback, setIsFallback] = useState(false);
 
   useEffect(() => {
     fetchTestimonials();
@@ -52,18 +88,30 @@ export default function Testimonials() {
 
       if (error) throw error;
       setTestimonials((data || []) as Testimonial[]);
+      setIsFallback(false);
     } catch (err: any) {
-      toast({
-        title: 'Error loading testimonials',
-        description: err.message,
-        variant: 'destructive',
-      });
+      if (err.message?.includes('relation "public.testimonials" does not exist') || err.code === 'PGRST116' || err.message?.includes('Could not find the table')) {
+        setTestimonials(staticTestimonials);
+        setIsFallback(true);
+        toast({
+          title: 'Using Local Fallback',
+          description: 'Database table not found. Showing default client testimonials.',
+          duration: 5000,
+        });
+      } else {
+        toast({
+          title: 'Error loading testimonials',
+          description: err.message,
+          variant: 'destructive',
+        });
+      }
     } finally {
       setLoading(false);
     }
   };
 
   const openNew = () => {
+    if (isFallback) return;
     setEditingId(null);
     setForm(emptyTestimonial);
     setDeleteConfirm(null);
@@ -71,6 +119,7 @@ export default function Testimonials() {
   };
 
   const openEdit = (testimonial: Testimonial) => {
+    if (isFallback) return;
     setEditingId(testimonial.id);
     setForm({
       name: testimonial.name || '',
@@ -84,6 +133,7 @@ export default function Testimonials() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isFallback) return;
     if (!form.name || !form.text || !form.trek) {
       toast({ title: 'Validation error', description: 'Please fill in all fields.', variant: 'destructive' });
       return;
@@ -123,6 +173,7 @@ export default function Testimonials() {
   };
 
   const handleDelete = async (id: string) => {
+    if (isFallback) return;
     try {
       const { error } = await supabase
         .from('testimonials')
@@ -151,11 +202,24 @@ export default function Testimonials() {
           <Button variant="outline" size="sm" onClick={fetchTestimonials} className="border-white/10 w-fit">
             <RefreshCw className="w-4 h-4 mr-2" /> Refresh
           </Button>
-          <Button onClick={openNew} className="gap-2 w-fit">
+          <Button onClick={openNew} disabled={isFallback} className="gap-2 w-fit">
             <Plus className="w-4 h-4" /> Add Review
           </Button>
         </div>
       </div>
+
+      {isFallback && (
+        <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 text-amber-400 text-sm flex items-start gap-3">
+          <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+          <div>
+            <strong className="block mb-1">Database Table Missing</strong>
+            The <code>testimonials</code> table was not found in your Supabase schema. Currently showing read-only fallback testimonials. 
+            To enable full management capabilities, please copy the contents of the SQL migration file 
+            <code className="mx-1 px-1 bg-black/40 rounded border border-white/5">supabase/migrations/20260528145000_create_testimonials_table.sql</code> 
+            and execute it in the SQL Editor on your Supabase dashboard.
+          </div>
+        </div>
+      )}
 
       {loading ? (
         <div className="text-center py-16 text-muted-foreground">Loading testimonials...</div>
@@ -163,7 +227,7 @@ export default function Testimonials() {
         <div className="text-center py-16 bg-[#1a1a24] border border-white/5 rounded-xl">
           <MessageSquare className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-30" />
           <p className="text-muted-foreground">No testimonials found. Add your first client review!</p>
-          <Button className="mt-4 gap-2" onClick={openNew}>
+          <Button className="mt-4 gap-2" onClick={openNew} disabled={isFallback}>
             <Plus className="w-4 h-4" /> Add Review
           </Button>
         </div>
@@ -197,14 +261,16 @@ export default function Testimonials() {
                   <div className="font-serif font-bold text-white text-base">
                     {item.name}
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => openEdit(item)}>
-                      <Pencil className="w-3.5 h-3.5 text-muted-foreground hover:text-white" />
-                    </Button>
-                    <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-red-400 hover:text-red-400 hover:bg-red-400/10" onClick={() => setDeleteConfirm(item.id)}>
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </Button>
-                  </div>
+                  {!isFallback && (
+                    <div className="flex items-center gap-1">
+                      <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => openEdit(item)}>
+                        <Pencil className="w-3.5 h-3.5 text-muted-foreground hover:text-white" />
+                      </Button>
+                      <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-red-400 hover:text-red-400 hover:bg-red-400/10" onClick={() => setDeleteConfirm(item.id)}>
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
 
                 {deleteConfirm === item.id && (
