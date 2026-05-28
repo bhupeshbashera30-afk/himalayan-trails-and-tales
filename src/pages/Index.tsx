@@ -230,7 +230,7 @@ export default function Index() {
       <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${
         isScrolled ? 'glass backdrop-blur-xl py-2' : 'bg-transparent py-4'
       }`}>
-        <div className="container mx-auto px-6">
+        <div className="container mx-auto px-3 md:px-6">
           <div className="flex items-center justify-between">
             <motion.div
               className="font-serif text-2xl font-bold gradient-text"
@@ -538,7 +538,7 @@ export default function Index() {
       {/* ============================================================ */}
       {/* UPCOMING TREKS SECTION */}
       {/* ============================================================ */}
-      <section className="py-10 md:py-20 px-4 md:px-6 bg-gradient-to-r from-card via-background to-card">
+      <section className="py-10 md:py-20 px-2 md:px-6 bg-gradient-to-r from-card via-background to-card">
         <div className="container mx-auto">
           <motion.div
             className="text-center mb-8 md:mb-16"
@@ -574,7 +574,7 @@ export default function Index() {
               </Button>
             </div>
           ) : (
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 md:gap-8">
               {treks.map((trek, index) => {
                 const seatsLeft = trek.max_seats - trek.seats_booked;
                 const seatsPercent = Math.round((trek.seats_booked / trek.max_seats) * 100);
@@ -640,22 +640,22 @@ export default function Index() {
                         {/* Compact 2-column info grid */}
                         <div className="grid grid-cols-2 gap-x-2 gap-y-1 md:gap-y-1.5 mb-2 md:mb-3 text-[11px] md:text-sm">
                           {/* Location */}
-                          <div className="flex items-center gap-1 text-muted-foreground">
+                          <div className="flex items-center gap-1 text-muted-foreground min-w-0">
                             <MapPin className="w-3 h-3 md:w-3.5 md:h-3.5 flex-shrink-0 text-primary" />
                             <span className="truncate">{trek.location?.split(',')[0]}</span>
                           </div>
                           {/* Difficulty */}
-                          <div className="flex items-center gap-1">
+                          <div className="flex items-center gap-1 min-w-0">
                             <ArrowRight className="w-3 h-3 md:w-3.5 md:h-3.5 flex-shrink-0 text-primary rotate-[-45deg]" />
-                            <span className={diff.color}>{diff.label}</span>
+                            <span className={`${diff.color} truncate`}>{diff.label}</span>
                           </div>
                           {/* Duration */}
                           {(() => {
                             const dur = getDuration(trek.start_date, trek.end_date);
                             return dur ? (
-                              <div className="flex items-center gap-1 text-muted-foreground">
+                              <div className="flex items-center gap-1 text-muted-foreground col-span-2 md:col-span-1 min-w-0">
                                 <Calendar className="w-3 h-3 md:w-3.5 md:h-3.5 flex-shrink-0 text-primary" />
-                                <span>{dur.days} Days, {dur.nights} Nights</span>
+                                <span className="truncate">{dur.days} Days, {dur.nights} Nights</span>
                               </div>
                             ) : null;
                           })()}
@@ -663,9 +663,9 @@ export default function Index() {
                           {(() => {
                             const alt = getAltitude(trek.highlights);
                             return alt ? (
-                              <div className="flex items-center gap-1 text-muted-foreground">
+                              <div className="flex items-center gap-1 text-muted-foreground col-span-2 md:col-span-1 min-w-0">
                                 <Mountain className="w-3 h-3 md:w-3.5 md:h-3.5 flex-shrink-0 text-primary" />
-                                <span>{alt}</span>
+                                <span className="truncate">{alt}</span>
                               </div>
                             ) : null;
                           })()}
@@ -707,7 +707,7 @@ export default function Index() {
       </section>
 
       {/* Featured Packages */}
-      <section className="py-10 md:py-20 px-4 md:px-6">
+      <section className="py-10 md:py-20 px-2 md:px-6">
         <div className="container mx-auto">
           <motion.div
             className="text-center mb-8 md:mb-16"
@@ -724,7 +724,7 @@ export default function Index() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 md:gap-8">
             {packages.map((pkg, index) => (
               <motion.div
                 key={pkg.id}
@@ -857,7 +857,7 @@ export default function Index() {
           </div>
 
           {/* Mobile: image grid (visible only on mobile, categories also shown in Hero) */}
-          <div className="md:hidden grid grid-cols-2 gap-4">
+          <div className="md:hidden grid grid-cols-2 gap-2.5">
             {categories.map((category, index) => (
               <motion.button
                 key={category.id}
