@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { getFirstImage } from '../lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Phone, Copy, Check, ChevronDown, Mountain, Utensils, Bed, Heart,
-  Star, Calendar, Users, Mail, MapPin, ArrowRight, Clock, AlertTriangle
+  Star, Calendar, Users, Mail, MapPin, ArrowRight, Clock, AlertTriangle,
+  Quote, ChevronLeft
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -108,7 +109,53 @@ function getAltitude(highlights: string[]): string | null {
   return null;
 }
 
+const testimonials = [
+  {
+    id: 1,
+    text: "Himalayan Trails & Tales turned my Valley of Flowers trek into something straight out of a dream. Every detail was perfect, from the local stays to the experienced guides.",
+    rating: 5,
+    name: "Priya Sharma",
+    trek: "VALLEY OF FLOWERS"
+  },
+  {
+    id: 2,
+    text: "The Chopta Chandrashila trek was breathtaking. The sunset, the snow peaks, the camp setup under the stars, it felt like a dream. Truly unforgettable experience.",
+    rating: 5,
+    name: "Rohan & Ananya",
+    trek: "CHOPTA CHANDRASHILA"
+  },
+  {
+    id: 3,
+    text: "Professional, creative, and so easy to travel with. Our group trip to Kedarkantha was absolutely stunning. The local organic food was a massive hit with everyone!",
+    rating: 5,
+    name: "Meera Kapoor",
+    trek: "KEDARKANTHA TREK"
+  },
+  {
+    id: 4,
+    text: "I wanted the Har Ki Dun trek to be perfect and Himalayan Trails & Tales delivered beyond my expectations. The view of the peaks was the most beautiful setting imaginable.",
+    rating: 5,
+    name: "Vikram Patel",
+    trek: "HAR KI DUN TREK"
+  }
+];
+
 export default function Index() {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollRef.current) {
+      const { scrollLeft, clientWidth } = scrollRef.current;
+      const scrollTo = direction === 'left' 
+        ? scrollLeft - clientWidth * 0.75 
+        : scrollLeft + clientWidth * 0.75;
+      
+      scrollRef.current.scrollTo({
+        left: scrollTo,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   const [isCopied, setIsCopied] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const phoneNumber = "+918630113945";
@@ -780,108 +827,89 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Categories Showcase - Desktop only (mobile is in Hero) */}
-      <section className="py-20 px-6 bg-gradient-to-r from-card via-background to-card">
+      {/* Testimonials Section */}
+      <section className="py-20 px-4 md:px-6 bg-gradient-to-r from-card via-background to-card overflow-hidden">
         <div className="container mx-auto">
-          <motion.div
-            className="text-center mb-16"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="font-serif text-4xl md:text-5xl font-bold mb-4 gradient-text">
-              Explore Every Facet
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              From authentic flavors to thrilling adventures, discover what makes the Pahadi experience truly special
-            </p>
-          </motion.div>
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 md:mb-16">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+              className="max-w-2xl text-left"
+            >
+              <span className="text-xs font-semibold tracking-widest text-primary uppercase block mb-3">
+                Testimonials
+              </span>
+              <h2 className="font-serif text-3xl md:text-5xl font-bold mb-4">
+                What our clients say.
+              </h2>
+              <p className="text-sm md:text-lg text-muted-foreground">
+                Every review is a story of trust, care, and moments made unforgettable.
+              </p>
+            </motion.div>
 
-          {/* Desktop: icon-based cards */}
-          <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {categories.map((category, index) => {
-              const IconComponent = iconMap[category.icon as keyof typeof iconMap] || Mountain;
-              const categoryDestinations = getDestinationsByCategory(category.id);
-
-              return (
-                <motion.div
-                  key={category.id}
-                  initial={{ opacity: 0, y: 50 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                >
-                  <Card className="group hover:shadow-2xl transition-all duration-500 glass h-full">
-                    <CardHeader className="text-center">
-                      <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-primary to-primary-glow rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                        <IconComponent className="w-8 h-8 text-white" />
-                      </div>
-                      <CardTitle className="font-serif text-xl">{category.name}</CardTitle>
-                      <CardDescription className="text-sm">{category.description}</CardDescription>
-                    </CardHeader>
-
-                    <CardContent>
-                      <div className="space-y-3">
-                        {categoryDestinations.slice(0, 3).map((destination) => (
-                          <div key={destination.id} className="flex items-center space-x-3">
-                            <img
-                              src={getFirstImage(destination.images, 100)}
-                              alt={destination.name}
-                              decoding="async"
-                              loading="lazy"
-                              width={40}
-                              height={40}
-                              className="w-10 h-10 rounded-lg object-cover bg-white/10 flex-shrink-0"
-                            />
-                            <div className="flex-1 min-w-0">
-                              <div className="font-medium text-sm truncate">{destination.name}</div>
-                              <div className="text-xs text-muted-foreground truncate">{destination.location}</div>
-                            </div>
-                            <div className="flex items-center space-x-1 flex-shrink-0">
-                              <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                              <span className="text-xs">{destination.rating}</span>
-                            </div>
-                          </div>
-                        ))}
-
-                        <Button variant="outline" size="sm" className="w-full mt-4" onClick={() => navigate(`/category/${category.slug}`)}>
-                          Explore {category.name}
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              );
-            })}
+            {/* Desktop Navigation Buttons */}
+            <div className="hidden md:flex space-x-3 mt-6 md:mt-0">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => scroll('left')}
+                className="w-12 h-12 rounded-full border-primary/20 hover:border-primary hover:bg-primary/10 text-foreground transition-all duration-300"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => scroll('right')}
+                className="w-12 h-12 rounded-full border-primary/20 hover:border-primary hover:bg-primary/10 text-foreground transition-all duration-300"
+              >
+                <ArrowRight className="w-5 h-5" />
+              </Button>
+            </div>
           </div>
 
-          {/* Mobile: image grid (visible only on mobile, categories also shown in Hero) */}
-          <div className="md:hidden grid grid-cols-2 gap-2.5">
-            {categories.map((category, index) => (
-              <motion.button
-                key={category.id}
-                onClick={() => navigate(`/category/${category.slug}`)}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.08 }}
-                viewport={{ once: true }}
-                className="relative rounded-2xl overflow-hidden aspect-square group shadow-lg"
-              >
-                <img
-                  src={getCategoryImage(category.id)}
-                  alt={category.name}
-                  className="w-full h-full object-cover group-active:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-3 flex items-center justify-between">
-                  <span className="text-white text-sm font-semibold text-left leading-tight">{category.name}</span>
-                  <div className="w-7 h-7 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0 ml-2">
-                    <ArrowRight className="w-3.5 h-3.5 text-white" />
-                  </div>
-                </div>
-              </motion.button>
-            ))}
+          {/* Testimonials Scroll Container */}
+          <div className="relative animate-fade-in">
+            <div
+              ref={scrollRef}
+              className="flex gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-none pb-6 px-1"
+              style={{ scrollBehavior: 'smooth' }}
+            >
+              {testimonials.map((testimonial, index) => (
+                <motion.div
+                  key={testimonial.id}
+                  initial={{ opacity: 0, x: 50 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  className="flex-shrink-0 w-[290px] md:w-[380px] snap-start"
+                >
+                  <Card className="h-full bg-card/40 backdrop-blur-md border border-white/5 hover:border-primary/20 transition-all duration-500 rounded-2xl p-6 md:p-8 flex flex-col justify-between group shadow-xl">
+                    <div className="text-left">
+                      <Quote className="w-10 h-10 text-primary/20 group-hover:text-primary/40 transition-colors duration-300 mb-4" />
+                      <p className="text-muted-foreground text-sm md:text-base leading-relaxed italic mb-6">
+                        "{testimonial.text}"
+                      </p>
+                    </div>
+                    <div className="text-left border-t border-white/5 pt-4">
+                      <div className="flex space-x-1 mb-3">
+                        {[...Array(testimonial.rating)].map((_, i) => (
+                          <Star key={i} className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
+                        ))}
+                      </div>
+                      <div className="font-serif font-bold text-base text-foreground">
+                        {testimonial.name}
+                      </div>
+                      <div className="text-[10px] md:text-xs tracking-wider text-primary font-semibold uppercase mt-0.5">
+                        {testimonial.trek}
+                      </div>
+                    </div>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
