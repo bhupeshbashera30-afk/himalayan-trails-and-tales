@@ -1,3 +1,44 @@
+-- Create admin_users table if it doesn't exist
+CREATE TABLE IF NOT EXISTS public.admin_users (
+  id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
+  email VARCHAR(200),
+  full_name VARCHAR(200),
+  is_admin BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Enable RLS for admin_users if not already enabled
+ALTER TABLE public.admin_users ENABLE ROW LEVEL SECURITY;
+
+-- Admin users can read their own record if not already created
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'admin_users' AND policyname = 'Admin users can read own record'
+  ) THEN
+    CREATE POLICY "Admin users can read own record" ON public.admin_users FOR SELECT USING (auth.uid() = id);
+  END IF;
+END $$;
+
+-- Create is_admin helper function if it doesn't exist
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS boolean
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+STABLE
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.admin_users
+    WHERE id = auth.uid()
+      AND is_admin = true
+  );
+$$;
+
+GRANT EXECUTE ON FUNCTION public.is_admin() TO anon, authenticated;
+
+
 -- Create testimonials table
 CREATE TABLE IF NOT EXISTS public.testimonials (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
