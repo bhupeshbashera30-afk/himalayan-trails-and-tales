@@ -109,7 +109,7 @@ function getAltitude(highlights: string[]): string | null {
   return null;
 }
 
-const testimonials = [
+const staticTestimonials = [
   {
     id: 1,
     text: "Himalayan Trails & Tales turned my Valley of Flowers trek into something straight out of a dream. Every detail was perfect, from the local stays to the experienced guides.",
@@ -180,6 +180,7 @@ export default function Index() {
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [packages, setPackages] = useState<Package[]>([]);
   const [treks, setTreks] = useState<Trek[]>([]);
+  const [testimonials, setTestimonials] = useState<any[]>(staticTestimonials);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const [selectedTrek, setSelectedTrek] = useState<Trek | null>(null);
@@ -219,6 +220,21 @@ export default function Index() {
       if (treksRes.data) setTreks(treksRes.data as Trek[]);
     } catch (error) {
       console.error('Error fetching data:', error);
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('testimonials')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (!error && data && data.length > 0) {
+        setTestimonials(data);
+      } else if (error) {
+        console.warn('Could not fetch testimonials from database, using fallback:', error.message);
+      }
+    } catch (err) {
+      console.warn('Error fetching testimonials, using fallback:', err);
     }
   };
 

@@ -26,6 +26,8 @@ const navSections = [
       { path: '/admin/treks', label: 'Treks', icon: Tent },
       { path: '/admin/trek-registrations', label: 'Trek Registrations', icon: Map },
       { path: '/admin/categories', label: 'Categories', icon: Tag },
+      { path: '/admin/packages', label: 'Curated Packages', icon: Mountain },
+      { path: '/admin/testimonials', label: 'Testimonials', icon: Star },
     ],
   },
   {
