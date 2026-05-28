@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   BookOpen, MessageSquare, Mountain, Users, TrendingUp,
-  TrendingDown, ArrowRight, CheckCircle, Clock, XCircle, Tent
+  TrendingDown, ArrowRight, CheckCircle, Clock, XCircle, Tent, Calendar
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 
 interface Stats {
   totalBookings: number;
@@ -61,29 +63,134 @@ function StatCard({ title, value, icon, color, subtitle }: {
   );
 }
 
-// Generate mock chart data for last 14 days
-function generateChartData() {
-  return Array.from({ length: 14 }, (_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() - (13 - i));
-    return {
-      date: d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }),
-      bookings: Math.floor(Math.random() * 8) + 1,
-      enquiries: Math.floor(Math.random() * 15) + 3,
-    };
-  });
-}
-
 export default function Dashboard() {
   const [stats, setStats] = useState<Stats>({ totalBookings: 0, totalEnquiries: 0, activeTreks: 0, totalRegistrations: 0 });
   const [recentBookings, setRecentBookings] = useState<Booking[]>([]);
   const [recentEnquiries, setRecentEnquiries] = useState<Enquiry[]>([]);
-  const [chartData] = useState(generateChartData());
+  const [rangeType, setRangeType] = useState<string>('14days');
+  const [customStart, setCustomStart] = useState<string>(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 30);
+    return d.toISOString().split('T')[0];
+  });
+  const [customEnd, setCustomEnd] = useState<string>(() => {
+    return new Date().toISOString().split('T')[0];
+  });
+  const [chartData, setChartData] = useState<any[]>([]);
+  const [chartLoading, setChartLoading] = useState<boolean>(true);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchDashboardData();
   }, []);
+
+  useEffect(() => {
+    fetchChartData();
+  }, [rangeType, customStart, customEnd]);
+
+  const fetchChartData = async () => {
+    setChartLoading(true);
+    try {
+      let startDate = new Date();
+      let endDate = new Date();
+
+      if (rangeType === '14days') {
+        startDate.setDate(startDate.getDate() - 13);
+        startDate.setHours(0, 0, 0, 0);
+        endDate.setHours(23, 59, 59, 999);
+      } else if (rangeType === '30days') {
+        startDate.setDate(startDate.getDate() - 29);
+        startDate.setHours(0, 0, 0, 0);
+        endDate.setHours(23, 59, 59, 999);
+      } else if (rangeType === '90days') {
+        startDate.setDate(startDate.getDate() - 89);
+        startDate.setHours(0, 0, 0, 0);
+        endDate.setHours(23, 59, 59, 999);
+      } else if (rangeType === 'custom') {
+        if (!customStart || !customEnd) return;
+        
+        const startParsed = new Date(customStart);
+        const endParsed = new Date(customEnd);
+        
+        if (isNaN(startParsed.getTime()) || isNaN(endParsed.getTime())) return;
+        
+        startDate = startParsed;
+        startDate.setHours(0, 0, 0, 0);
+        
+        endDate = endParsed;
+        endDate.setHours(23, 59, 59, 999);
+      }
+
+      // Sanity check to prevent hangs on huge intervals
+      const dayDiff = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+      if (dayDiff > 366) {
+        startDate = new Date(endDate);
+        startDate.setDate(endDate.getDate() - 365);
+        startDate.setHours(0, 0, 0, 0);
+      }
+
+      const [bookingsRes, regsRes] = await Promise.all([
+        supabase
+          .from('bookings_2025_10_14_17_34')
+          .select('created_at')
+          .gte('created_at', startDate.toISOString())
+          .lte('created_at', endDate.toISOString()),
+        supabase
+          .from('trek_registrations')
+          .select('created_at')
+          .gte('created_at', startDate.toISOString())
+          .lte('created_at', endDate.toISOString())
+      ]);
+
+      if (bookingsRes.error) throw bookingsRes.error;
+      if (regsRes.error) throw regsRes.error;
+
+      const getLocalDateKey = (date: Date) => {
+        const yyyy = date.getFullYear();
+        const mm = String(date.getMonth() + 1).padStart(2, '0');
+        const dd = String(date.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+      };
+
+      const dataMap: Record<string, { date: string; bookings: number; registrations: number }> = {};
+      
+      const current = new Date(startDate);
+      while (current <= endDate) {
+        const key = getLocalDateKey(current);
+        const label = current.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+        dataMap[key] = { date: label, bookings: 0, registrations: 0 };
+        current.setDate(current.getDate() + 1);
+      }
+
+      if (bookingsRes.data) {
+        bookingsRes.data.forEach((b: { created_at: string }) => {
+          const bDate = new Date(b.created_at);
+          const key = getLocalDateKey(bDate);
+          if (dataMap[key]) {
+            dataMap[key].bookings += 1;
+          }
+        });
+      }
+
+      if (regsRes.data) {
+        regsRes.data.forEach((r: { created_at: string }) => {
+          const rDate = new Date(r.created_at);
+          const key = getLocalDateKey(rDate);
+          if (dataMap[key]) {
+            dataMap[key].registrations += 1;
+          }
+        });
+      }
+
+      const sortedKeys = Object.keys(dataMap).sort();
+      const formattedData = sortedKeys.map(k => dataMap[k]);
+      setChartData(formattedData);
+    } catch (err) {
+      console.error('Error fetching chart data:', err);
+    } finally {
+      setChartLoading(false);
+    }
+  };
 
   const fetchDashboardData = async () => {
     try {
@@ -110,8 +217,29 @@ export default function Dashboard() {
     }
   };
 
-  const now = new Date();
-  const dateRange = `${new Date(now.getFullYear(), now.getMonth(), now.getDate() - 30).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })} – ${now.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+  const getDisplayRange = () => {
+    let start = new Date();
+    let end = new Date();
+
+    if (rangeType === '14days') {
+      start.setDate(start.getDate() - 13);
+    } else if (rangeType === '30days') {
+      start.setDate(start.getDate() - 29);
+    } else if (rangeType === '90days') {
+      start.setDate(start.getDate() - 89);
+    } else if (rangeType === 'custom') {
+      const s = new Date(customStart);
+      const e = new Date(customEnd);
+      if (!isNaN(s.getTime()) && !isNaN(e.getTime())) {
+        start = s;
+        end = e;
+      }
+    }
+
+    const startStr = start.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+    const endStr = end.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+    return `${startStr} – ${endStr}`;
+  };
 
   return (
     <div className="space-y-6">
@@ -122,7 +250,7 @@ export default function Dashboard() {
           <p className="text-muted-foreground text-sm mt-1">Here's what's happening with Himaale Himalayan Trails &amp; Tales.</p>
         </div>
         <div className="text-xs text-muted-foreground bg-white/5 border border-white/10 rounded-lg px-3 py-2 hidden sm:block">
-          📅 {dateRange}
+          📅 {getDisplayRange()}
         </div>
       </div>
 
@@ -167,39 +295,77 @@ export default function Dashboard() {
           transition={{ delay: 0.2 }}
           className="lg:col-span-3 bg-[#1a1a24] border border-white/5 rounded-2xl p-6"
         >
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <h2 className="font-semibold text-white">Activity Overview</h2>
-            <span className="text-xs text-muted-foreground bg-white/5 px-2 py-1 rounded-lg">Last 14 days</span>
+            <div className="flex flex-wrap items-center gap-2">
+              {rangeType === 'custom' && (
+                <div className="flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-xl px-2 py-1">
+                  <Input
+                    type="date"
+                    value={customStart}
+                    onChange={(e) => setCustomStart(e.target.value)}
+                    className="bg-transparent border-0 text-white text-xs focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none w-[120px] h-6 p-0"
+                  />
+                  <span className="text-white/40 text-[10px]">to</span>
+                  <Input
+                    type="date"
+                    value={customEnd}
+                    onChange={(e) => setCustomEnd(e.target.value)}
+                    className="bg-transparent border-0 text-white text-xs focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none w-[120px] h-6 p-0"
+                  />
+                </div>
+              )}
+              <Select value={rangeType} onValueChange={setRangeType}>
+                <SelectTrigger className="w-[140px] bg-white/5 border-white/10 rounded-xl text-xs text-white h-8">
+                  <SelectValue placeholder="Select Range" />
+                </SelectTrigger>
+                <SelectContent className="bg-[#1a1a24] border-white/10 text-white">
+                  <SelectItem value="14days">Last 14 days</SelectItem>
+                  <SelectItem value="30days">Last 30 days</SelectItem>
+                  <SelectItem value="90days">Last 90 days</SelectItem>
+                  <SelectItem value="custom">Custom Range</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <ResponsiveContainer width="100%" height={220}>
-            <AreaChart data={chartData}>
-              <defs>
-                <linearGradient id="bookGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#22c55e" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
-                </linearGradient>
-                <linearGradient id="enqGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" />
-              <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#666' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: '#666' }} axisLine={false} tickLine={false} />
-              <Tooltip
-                contentStyle={{ background: '#1a1a24', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8 }}
-                labelStyle={{ color: '#999' }}
-              />
-              <Area type="monotone" dataKey="bookings" stroke="#22c55e" fill="url(#bookGrad)" strokeWidth={2} name="Bookings" />
-              <Area type="monotone" dataKey="enquiries" stroke="#6366f1" fill="url(#enqGrad)" strokeWidth={2} name="Enquiries" />
-            </AreaChart>
-          </ResponsiveContainer>
+          <div className="relative">
+            {chartLoading && (
+              <div className="absolute inset-0 bg-[#1a1a24]/60 backdrop-blur-[1px] flex items-center justify-center z-10 rounded-2xl">
+                <div className="text-xs text-muted-foreground flex items-center gap-2">
+                  <span className="animate-spin">⏳</span> Loading real-time stats...
+                </div>
+              </div>
+            )}
+            <ResponsiveContainer width="100%" height={220}>
+              <AreaChart data={chartData}>
+                <defs>
+                  <linearGradient id="bookGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#22c55e" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="enqGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff08" />
+                <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#666' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: '#666' }} axisLine={false} tickLine={false} />
+                <Tooltip
+                  contentStyle={{ background: '#1a1a24', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8 }}
+                  labelStyle={{ color: '#999' }}
+                />
+                <Area type="monotone" dataKey="bookings" stroke="#22c55e" fill="url(#bookGrad)" strokeWidth={2} name="Bookings" />
+                <Area type="monotone" dataKey="registrations" stroke="#6366f1" fill="url(#enqGrad)" strokeWidth={2} name="Registrations" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
           <div className="flex gap-4 mt-3">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <div className="w-3 h-1 bg-green-400 rounded" /> Bookings
+              <div className="w-3 h-1 bg-[#22c55e] rounded" /> Bookings
             </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <div className="w-3 h-1 bg-indigo-400 rounded" /> Enquiries
+              <div className="w-3 h-1 bg-[#6366f1] rounded" /> Registrations
             </div>
           </div>
         </motion.div>
