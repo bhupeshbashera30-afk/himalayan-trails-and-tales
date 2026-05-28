@@ -209,12 +209,12 @@ export default function Index() {
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-card">
       {/* Navigation */}
       <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${
-        isScrolled ? 'glass backdrop-blur-xl py-2' : 'bg-transparent py-4'
+        isScrolled ? 'glass backdrop-blur-xl py-2' : 'bg-transparent py-2 md:py-4'
       }`}>
-        <div className="container mx-auto px-6">
+        <div className="container mx-auto px-4 md:px-6">
           <div className="flex items-center justify-between">
             <motion.div
-              className="font-serif text-2xl font-bold gradient-text"
+              className="font-serif text-lg md:text-2xl font-bold gradient-text"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
@@ -285,7 +285,7 @@ export default function Index() {
 
             <Dialog>
               <DialogTrigger asChild>
-                <Button className="pulse-glow hidden md:inline-flex">Plan Your Journey</Button>
+                <Button className="pulse-glow">Plan Your Journey</Button>
               </DialogTrigger>
               <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
@@ -410,9 +410,9 @@ export default function Index() {
           />
         </div>
 
-        <div className="relative z-10 text-center px-6 max-w-6xl mx-auto">
+        <div className="relative z-10 text-center px-4 md:px-6 max-w-6xl mx-auto">
           <motion.h1
-            className="font-serif text-6xl md:text-8xl font-bold mb-6 gradient-text"
+            className="font-serif text-4xl md:text-8xl font-bold mb-4 md:mb-6 gradient-text"
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
@@ -421,7 +421,7 @@ export default function Index() {
           </motion.h1>
 
           <motion.p
-            className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed"
+            className="text-sm md:text-2xl text-muted-foreground mb-6 md:mb-8 max-w-3xl mx-auto leading-relaxed"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
@@ -477,38 +477,6 @@ export default function Index() {
           </motion.div>
 
           {/* Mobile Categories - 2-column grid below Speak with Expert */}
-          {categories.length > 0 && (
-            <motion.div
-              className="md:hidden mt-16 w-full max-w-sm mx-auto pb-8"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.8 }}
-            >
-              <p className="text-xs uppercase tracking-widest text-muted-foreground mb-6 font-semibold">Explore Categories</p>
-              <div className="grid grid-cols-2 gap-3">
-                {categories.map((category) => (
-                  <button
-                    key={category.id}
-                    onClick={() => navigate(`/category/${category.slug}`)}
-                    className="relative rounded-2xl overflow-hidden aspect-square group shadow-lg"
-                  >
-                    <img
-                      src={getCategoryImage(category.id)}
-                      alt={category.name}
-                      className="w-full h-full object-cover group-active:scale-105 transition-transform duration-300"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-                    <div className="absolute bottom-0 left-0 right-0 p-3 flex items-center justify-between">
-                      <span className="text-white text-sm font-semibold text-left leading-tight">{category.name}</span>
-                      <div className="w-7 h-7 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0 ml-2">
-                        <ArrowRight className="w-3.5 h-3.5 text-white" />
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </motion.div>
-          )}
         </div>
 
         {/* Floating elements */}
@@ -555,7 +523,7 @@ export default function Index() {
               </Button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
               {treks.map((trek, index) => {
                 const seatsLeft = trek.max_seats - trek.seats_booked;
                 const seatsPercent = Math.round((trek.seats_booked / trek.max_seats) * 100);
@@ -575,7 +543,7 @@ export default function Index() {
                   >
                     <div className="glass rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-500 h-full flex flex-col">
                       {/* Image */}
-                      <div className="relative overflow-hidden h-56">
+                      <div className="relative overflow-hidden h-32 md:h-56">
                         <img
                           src={trekImage}
                           alt={trek.name}
@@ -831,34 +799,6 @@ export default function Index() {
                 </motion.div>
               );
             })}
-          </div>
-
-          {/* Mobile: image grid (visible only on mobile, categories also shown in Hero) */}
-          <div className="md:hidden grid grid-cols-2 gap-4">
-            {categories.map((category, index) => (
-              <motion.button
-                key={category.id}
-                onClick={() => navigate(`/category/${category.slug}`)}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.08 }}
-                viewport={{ once: true }}
-                className="relative rounded-2xl overflow-hidden aspect-square group shadow-lg"
-              >
-                <img
-                  src={getCategoryImage(category.id)}
-                  alt={category.name}
-                  className="w-full h-full object-cover group-active:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-3 flex items-center justify-between">
-                  <span className="text-white text-sm font-semibold text-left leading-tight">{category.name}</span>
-                  <div className="w-7 h-7 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0 ml-2">
-                    <ArrowRight className="w-3.5 h-3.5 text-white" />
-                  </div>
-                </div>
-              </motion.button>
-            ))}
           </div>
         </div>
       </section>
