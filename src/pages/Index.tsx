@@ -331,6 +331,7 @@ export default function Index() {
         .from('contact_submissions_2025_10_14_17_34')
         .insert([contactForm]);
       if (error) throw error;
+
       setShowContactThankYou(true);
       setContactForm({
         name: '', email: '', phone: '', travel_dates: '',

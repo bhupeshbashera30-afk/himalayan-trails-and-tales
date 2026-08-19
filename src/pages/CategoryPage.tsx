@@ -100,19 +100,19 @@ export default function CategoryPage() {
       const { error } = await supabase
         .from('bookings_2025_10_14_17_34')
         .insert([{
- guest_name: bookingForm.name,
- guest_email: bookingForm.email,
- guest_phone: bookingForm.phone,
- travel_date: bookingForm.travel_dates,
- group_size: bookingForm.group_size,
- special_requests: bookingForm.special_requirements,
+          guest_name: bookingForm.name,
+          guest_email: bookingForm.email,
+          guest_phone: bookingForm.phone,
+          travel_date: bookingForm.travel_dates,
+          group_size: bookingForm.group_size,
+          special_requests: bookingForm.special_requirements,
           destination_id: selectedDestination?.id,
- category_id: category?.id,
+          category_id: category?.id,
         }]);
 
       if (error) throw error;
 
- setShowSuccessDialog(true);
+      setShowSuccessDialog(true);
 
       setBookingForm({
         name: '',

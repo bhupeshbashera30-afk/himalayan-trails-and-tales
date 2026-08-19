@@ -80,6 +80,23 @@ export default function TrekRegistrationForm({ trek, open, onClose }: TrekRegist
 
       if (error) throw error;
 
+      // Trigger the Contact Submission automation with trek details
+      try {
+        await supabase.from('contact_submissions_2025_10_14_17_34').insert([{
+          name: form.name,
+          email: form.email,
+          phone: form.phone,
+          travel_dates: null,
+          group_size: parseInt(form.num_people),
+          budget_range: null,
+          service_interests: [`Trek: ${trek.name}`],
+          special_requirements: form.message || '',
+          status: 'new',
+        }]);
+      } catch (contactSyncErr) {
+        console.warn('Contact sync notice:', contactSyncErr);
+      }
+
       setShowSuccess(true);
       setForm({ name: '', email: '', phone: '', num_people: '1', message: '' });
     } catch (err: any) {
