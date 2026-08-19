@@ -54,7 +54,8 @@ export default function TrekRegistrations() {
 
     const { error } = await supabase.from('trek_registrations').delete().eq('id', id);
     if (error) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      console.error('Delete registration error:', error);
+      toast({ title: 'Delete Failed', description: error.message || 'Permission denied by database RLS policy', variant: 'destructive' });
     } else {
       setRegistrations(prev => prev.filter(r => r.id !== id));
       toast({ title: 'Registration Deleted', description: 'The trek registration record has been removed.' });

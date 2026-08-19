@@ -82,7 +82,8 @@ export default function Enquiries() {
       .eq('id', id);
 
     if (error) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      console.error('Delete enquiry error:', error);
+      toast({ title: 'Delete Failed', description: error.message || 'Permission denied by database RLS policy', variant: 'destructive' });
     } else {
       setEnquiries(prev => prev.filter(e => e.id !== id));
       toast({ title: 'Enquiry Deleted', description: 'The enquiry record has been removed.' });

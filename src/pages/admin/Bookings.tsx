@@ -126,7 +126,8 @@ export default function Bookings() {
       .eq('id', id);
 
     if (error) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      console.error('Delete booking error:', error);
+      toast({ title: 'Delete Failed', description: error.message || 'Permission denied by database RLS policy', variant: 'destructive' });
     } else {
       setBookings(prev => prev.filter(b => b.id !== id));
       toast({ title: 'Booking Deleted', description: 'The booking record has been removed.' });
