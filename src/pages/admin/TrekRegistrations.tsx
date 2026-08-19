@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Map, Search, RefreshCw, Users, Mail, Phone, MessageSquare } from 'lucide-react';
+import { Map, Search, RefreshCw, Users, Mail, Phone, MessageSquare, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -46,6 +46,18 @@ export default function TrekRegistrations() {
     if (!error) {
       setRegistrations(prev => prev.map(r => r.id === id ? { ...r, status } : r));
       toast({ title: 'Status updated' });
+    }
+  };
+
+  const deleteRegistration = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this trek registration?')) return;
+
+    const { error } = await supabase.from('trek_registrations').delete().eq('id', id);
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    } else {
+      setRegistrations(prev => prev.filter(r => r.id !== id));
+      toast({ title: 'Registration Deleted', description: 'The trek registration record has been removed.' });
     }
   };
 
@@ -159,24 +171,37 @@ export default function TrekRegistrations() {
                     </div>
                   )}
 
-                  <div className="flex gap-2 pt-1 flex-wrap">
-                    <Button size="sm" variant="outline" className="border-white/10 gap-2" onClick={() => window.location.href = `mailto:${r.email}`}>
-                      <Mail className="w-3.5 h-3.5" /> Email
-                    </Button>
-                    {r.phone && (
-                      <Button size="sm" variant="outline" className="border-white/10 gap-2" onClick={() => window.location.href = `tel:${r.phone}`}>
-                        <Phone className="w-3.5 h-3.5" /> Call
+                  <div className="flex gap-2 pt-1 flex-wrap items-center justify-between">
+                    <div className="flex gap-2 flex-wrap items-center">
+                      <Button size="sm" variant="outline" className="border-white/10 gap-2" onClick={() => window.location.href = `mailto:${r.email}`}>
+                        <Mail className="w-3.5 h-3.5" /> Email
                       </Button>
-                    )}
-                    <Select value={r.status} onValueChange={(val) => updateStatus(r.id, val)}>
-                      <SelectTrigger className="h-8 text-xs w-32 bg-white/5 border-white/10"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="new">New</SelectItem>
-                        <SelectItem value="contacted">Contacted</SelectItem>
-                        <SelectItem value="confirmed">Confirmed</SelectItem>
-                        <SelectItem value="cancelled">Cancelled</SelectItem>
-                      </SelectContent>
-                    </Select>
+                      {r.phone && (
+                        <Button size="sm" variant="outline" className="border-white/10 gap-2" onClick={() => window.location.href = `tel:${r.phone}`}>
+                          <Phone className="w-3.5 h-3.5" /> Call
+                        </Button>
+                      )}
+                      <Select value={r.status} onValueChange={(val) => updateStatus(r.id, val)}>
+                        <SelectTrigger className="h-8 text-xs w-32 bg-white/5 border-white/10"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="new">New</SelectItem>
+                          <SelectItem value="contacted">Contacted</SelectItem>
+                          <SelectItem value="confirmed">Confirmed</SelectItem>
+                          <SelectItem value="cancelled">Cancelled</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-red-400 hover:text-red-300 hover:bg-red-400/10 gap-1.5"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteRegistration(r.id);
+                      }}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" /> Delete
+                    </Button>
                   </div>
                 </div>
               )}

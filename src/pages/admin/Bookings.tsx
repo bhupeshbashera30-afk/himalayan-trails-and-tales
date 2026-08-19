@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronDown, ChevronUp, MapPin, RefreshCw, Search, Tag } from 'lucide-react';
+import { ChevronDown, ChevronUp, MapPin, RefreshCw, Search, Tag, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -114,6 +114,22 @@ export default function Bookings() {
     if (!error) {
       setBookings(prev => prev.map(b => b.id === id ? { ...b, status } : b));
       toast({ title: 'Status updated', description: `Booking marked as ${status}` });
+    }
+  };
+
+  const deleteBooking = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this booking?')) return;
+
+    const { error } = await supabase
+      .from('bookings_2025_10_14_17_34')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    } else {
+      setBookings(prev => prev.filter(b => b.id !== id));
+      toast({ title: 'Booking Deleted', description: 'The booking record has been removed.' });
     }
   };
 
@@ -238,16 +254,27 @@ export default function Bookings() {
                           {new Date(booking.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: '2-digit' })}
                         </td>
                         <td className="px-5 py-4">
-                          <Select value={booking.status} onValueChange={(val) => updateStatus(booking.id, val)}>
-                            <SelectTrigger className="h-7 text-xs w-28 bg-white/5 border-white/10">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="pending">Pending</SelectItem>
-                              <SelectItem value="confirmed">Confirmed</SelectItem>
-                              <SelectItem value="cancelled">Cancelled</SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <div className="flex items-center gap-2">
+                            <Select value={booking.status} onValueChange={(val) => updateStatus(booking.id, val)}>
+                              <SelectTrigger className="h-7 text-xs w-28 bg-white/5 border-white/10">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="pending">Pending</SelectItem>
+                                <SelectItem value="confirmed">Confirmed</SelectItem>
+                                <SelectItem value="cancelled">Cancelled</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-7 w-7 text-red-400 hover:text-red-300 hover:bg-red-400/10"
+                              title="Delete Booking"
+                              onClick={() => deleteBooking(booking.id)}
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
+                          </div>
                         </td>
                       </motion.tr>
 

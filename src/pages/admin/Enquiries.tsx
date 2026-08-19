@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, MessageSquare, RefreshCw, Search } from 'lucide-react';
+import { Mail, MessageSquare, RefreshCw, Search, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -70,6 +70,22 @@ export default function Enquiries() {
     if (!error) {
       setEnquiries(prev => prev.map(e => e.id === id ? { ...e, status } : e));
       toast({ title: 'Status updated', description: `Enquiry marked as ${status}` });
+    }
+  };
+
+  const deleteEnquiry = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this enquiry?')) return;
+
+    const { error } = await supabase
+      .from('contact_submissions_2025_10_14_17_34')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    } else {
+      setEnquiries(prev => prev.filter(e => e.id !== id));
+      toast({ title: 'Enquiry Deleted', description: 'The enquiry record has been removed.' });
     }
   };
 
@@ -196,20 +212,33 @@ export default function Enquiries() {
                       </div>
                     )}
 
-                    <div className="flex gap-2 pt-1">
-                      <Button size="sm" variant="outline" className="border-white/10 gap-2" onClick={() => window.location.href = `mailto:${enquiry.email}`}>
-                        <Mail className="w-3.5 h-3.5" /> Reply via Email
+                    <div className="flex gap-2 pt-1 items-center justify-between">
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline" className="border-white/10 gap-2" onClick={() => window.location.href = `mailto:${enquiry.email}`}>
+                          <Mail className="w-3.5 h-3.5" /> Reply via Email
+                        </Button>
+                        <Select value={currentStatus} onValueChange={(value) => updateStatus(enquiry.id, value)}>
+                          <SelectTrigger className="h-8 text-xs w-36 bg-white/5 border-white/10">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="pending">Pending</SelectItem>
+                            <SelectItem value="contacted">Contacted</SelectItem>
+                            <SelectItem value="cancelled">Cancelled</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-red-400 hover:text-red-300 hover:bg-red-400/10 gap-1.5"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteEnquiry(enquiry.id);
+                        }}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" /> Delete
                       </Button>
-                      <Select value={currentStatus} onValueChange={(value) => updateStatus(enquiry.id, value)}>
-                        <SelectTrigger className="h-8 text-xs w-36 bg-white/5 border-white/10">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="pending">Pending</SelectItem>
-                          <SelectItem value="contacted">Contacted</SelectItem>
-                          <SelectItem value="cancelled">Cancelled</SelectItem>
-                        </SelectContent>
-                      </Select>
                     </div>
                   </div>
                 )}
