@@ -306,9 +306,12 @@ export default function Treks() {
       setForm(prev => ({ ...prev, itinerary_pdf: urlData.publicUrl }));
       toast({ title: 'PDF Uploaded!', description: 'Official PDF itinerary linked successfully.' });
     } catch (err: any) {
+      const isSizeError = err.message?.includes('exceeded the maximum allowed size') || err.message?.includes('size');
       toast({
         title: 'Upload failed',
-        description: err.message || 'Could not upload PDF itinerary.',
+        description: isSizeError
+          ? 'File exceeds Supabase storage size limit. Run the SQL snippet to raise bucket limit to 50MB, or compress the PDF.'
+          : err.message || 'Could not upload PDF itinerary.',
         variant: 'destructive',
       });
     } finally {
