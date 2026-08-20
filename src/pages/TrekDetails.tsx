@@ -50,11 +50,12 @@ const difficultyConfig: Record<string, { label: string; color: string; bg: strin
 const DEFAULT_TREK_IMAGE = 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80';
 
 // Helper to safely open/download PDF (handles Data URLs, Blobs & Remote HTTP URLs)
-function openPdfDocument(pdfUrl: string) {
+function openPdfDocument(pdfUrl: string, toast?: any) {
   if (!pdfUrl) return;
   if (pdfUrl.startsWith('data:application/pdf')) {
     try {
-      const base64Data = pdfUrl.split(',')[1];
+      const parts = pdfUrl.split(',');
+      const base64Data = parts[1] || parts[0];
       const byteCharacters = atob(base64Data);
       const byteNumbers = new Array(byteCharacters.length);
       for (let i = 0; i < byteCharacters.length; i++) {
@@ -63,32 +64,83 @@ function openPdfDocument(pdfUrl: string) {
       const byteArray = new Uint8Array(byteNumbers);
       const blob = new Blob([byteArray], { type: 'application/pdf' });
       const blobUrl = URL.createObjectURL(blob);
-      window.open(blobUrl, '_blank');
-    } catch {
+      const win = window.open(blobUrl, '_blank');
+      if (!win && toast) {
+        toast({ title: 'Pop-up blocked', description: 'Please allow pop-ups to open the PDF.', variant: 'destructive' });
+      }
+    } catch (err) {
       window.open(pdfUrl, '_blank');
     }
   } else {
-    window.open(pdfUrl, '_blank');
+    // Check if HTTP URL is reachable
+    fetch(pdfUrl, { method: 'HEAD' }).then(res => {
+      if (res.ok) {
+        window.open(pdfUrl, '_blank');
+      } else {
+        if (toast) {
+          toast({ title: 'PDF Not Found (404)', description: 'Please re-upload the PDF itinerary document in the Admin panel.', variant: 'destructive' });
+        } else {
+          window.open(pdfUrl, '_blank');
+        }
+      }
+    }).catch(() => {
+      window.open(pdfUrl, '_blank');
+    });
   }
 }
 
-function downloadPdfDocument(pdfUrl: string, fileName = 'Trek_Itinerary.pdf') {
+function downloadPdfDocument(pdfUrl: string, fileName = 'Trek_Itinerary.pdf', toast?: any) {
   if (!pdfUrl) return;
   if (pdfUrl.startsWith('data:application/pdf')) {
-    const a = document.createElement('a');
-    a.href = pdfUrl;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    try {
+      const parts = pdfUrl.split(',');
+      const base64Data = parts[1] || parts[0];
+      const byteCharacters = atob(base64Data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'application/pdf' });
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } catch {
+      const a = document.createElement('a');
+      a.href = pdfUrl;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
   } else {
-    const a = document.createElement('a');
-    a.href = pdfUrl;
-    a.target = '_blank';
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    fetch(pdfUrl).then(async (res) => {
+      if (!res.ok) throw new Error('File not found');
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }).catch(() => {
+      if (toast) {
+        toast({ title: 'PDF Not Found (404)', description: 'Please re-upload the PDF itinerary document in the Admin panel.', variant: 'destructive' });
+      } else {
+        const a = document.createElement('a');
+        a.href = pdfUrl;
+        a.target = '_blank';
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    });
   }
 }
 
@@ -398,14 +450,14 @@ export default function TrekDetails() {
                       variant="outline"
                       size="sm"
                       className="flex-1 sm:flex-initial border-white/10 gap-1.5 text-xs"
-                      onClick={() => openPdfDocument(trek.itinerary_pdf!)}
+                      onClick={() => openPdfDocument(trek.itinerary_pdf!, toast)}
                     >
                       <ExternalLink className="w-3.5 h-3.5" /> Open Fullscreen
                     </Button>
                     <Button
                       size="sm"
                       className="flex-1 sm:flex-initial pulse-glow gap-1.5 text-xs"
-                      onClick={() => downloadPdfDocument(trek.itinerary_pdf!, `${trek.name.replace(/[^a-z0-9]+/gi, '_')}_Itinerary.pdf`)}
+                      onClick={() => downloadPdfDocument(trek.itinerary_pdf!, `${trek.name.replace(/[^a-z0-9]+/gi, '_')}_Itinerary.pdf`, toast)}
                     >
                       <Download className="w-3.5 h-3.5" /> Download PDF
                     </Button>
@@ -431,14 +483,14 @@ export default function TrekDetails() {
                       <p className="text-xs text-gray-400">Click below to view or download the complete PDF itinerary document for {trek.name}.</p>
                       <div className="flex justify-center gap-3 pt-2">
                         <Button
-                          onClick={() => openPdfDocument(trek.itinerary_pdf!)}
+                          onClick={() => openPdfDocument(trek.itinerary_pdf!, toast)}
                           variant="outline"
                           className="border-white/20 gap-2 text-xs"
                         >
                           <Eye className="w-4 h-4 text-primary" /> View Document
                         </Button>
                         <Button
-                          onClick={() => downloadPdfDocument(trek.itinerary_pdf!, `${trek.name.replace(/[^a-z0-9]+/gi, '_')}_Itinerary.pdf`)}
+                          onClick={() => downloadPdfDocument(trek.itinerary_pdf!, `${trek.name.replace(/[^a-z0-9]+/gi, '_')}_Itinerary.pdf`, toast)}
                           className="pulse-glow gap-2 text-xs"
                         >
                           <Download className="w-4 h-4" /> Download PDF

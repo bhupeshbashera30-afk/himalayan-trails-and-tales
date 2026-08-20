@@ -280,60 +280,52 @@ export default function Treks() {
     }
 
     setUploadingPdf(true);
-    const safeName = (form.name || 'trek').toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/(^-|-$)/g, '') || 'trek';
-    const filePath = `itineraries/${safeName}/${Date.now()}-${crypto.randomUUID()}.pdf`;
 
-    try {
-      // 1. Try uploading to storage with generic binary content-type to bypass mime restriction
-      let { data, error } = await supabase.storage
-        .from('trek-images')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: true,
-          contentType: 'application/octet-stream',
-        });
-
-      if (error) {
-        // 2. Try trek-itineraries bucket
-        const res2 = await supabase.storage
-          .from('trek-itineraries')
-          .upload(filePath, file, {
-            cacheControl: '3600',
-            upsert: true,
-            contentType: 'application/octet-stream',
-          });
-        data = res2.data;
-        error = res2.error;
-      }
-
-      if (error) {
-        // 3. Fallback: Read PDF as Data URL locally so admin is never blocked
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const dataUrl = e.target?.result as string;
-          if (dataUrl) {
-            setForm(prev => ({ ...prev, itinerary_pdf: dataUrl }));
-            toast({ title: 'PDF Attached!', description: 'The PDF itinerary has been attached.' });
-          }
-        };
-        reader.readAsDataURL(file);
+    // Read PDF file as Data URL first (100% reliable payload without 404)
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const dataUrl = e.target?.result as string;
+      if (!dataUrl) {
+        setUploadingPdf(false);
         return;
       }
 
-      const { data: urlData } = supabase.storage
-        .from('trek-images')
-        .getPublicUrl(filePath);
+      // Default to Data URL
+      setForm(prev => ({ ...prev, itinerary_pdf: dataUrl }));
 
-      setForm(prev => ({ ...prev, itinerary_pdf: urlData.publicUrl }));
-      toast({ title: 'PDF uploaded!', description: 'The itinerary PDF is ready and linked.' });
-    } catch (err: any) {
-      toast({
-        title: 'PDF Upload notice',
-        description: 'Using local PDF attachment fallback.',
-      });
-    } finally {
-      setUploadingPdf(false);
-    }
+      // Also attempt storage upload in background
+      const safeName = (form.name || 'trek').toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/(^-|-$)/g, '') || 'trek';
+      const filePath = `itineraries/${safeName}/${Date.now()}-${crypto.randomUUID()}.pdf`;
+
+      try {
+        const { data, error } = await supabase.storage
+          .from('trek-images')
+          .upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: true,
+          });
+
+        if (!error && data?.path) {
+          const { data: urlData } = supabase.storage.from('trek-images').getPublicUrl(data.path);
+          // Verify public URL is reachable
+          try {
+            const checkHead = await fetch(urlData.publicUrl, { method: 'HEAD' });
+            if (checkHead.ok) {
+              setForm(prev => ({ ...prev, itinerary_pdf: urlData.publicUrl }));
+            }
+          } catch {
+            // Keep Data URL
+          }
+        }
+      } catch {
+        // Keep Data URL
+      } finally {
+        setUploadingPdf(false);
+        toast({ title: 'PDF Attached!', description: 'Official PDF itinerary linked successfully.' });
+      }
+    };
+
+    reader.readAsDataURL(file);
   };
 
   return (
