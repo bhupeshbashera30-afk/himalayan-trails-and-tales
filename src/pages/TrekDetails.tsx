@@ -3,8 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronLeft, Mountain, MapPin, Calendar, Users, ArrowRight,
-  CheckCircle2, Clock, ShieldCheck, Phone, Mail, Award, Check, Sparkles,
-  AlertCircle, FileText, Download, ExternalLink, Eye, ImageOff
+  CheckCircle2, Clock, ShieldCheck, Phone, Award, Check, Sparkles,
+  AlertCircle, FileText, Download, ExternalLink, Eye
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -49,6 +49,49 @@ const difficultyConfig: Record<string, { label: string; color: string; bg: strin
 
 const DEFAULT_TREK_IMAGE = 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80';
 
+// Helper to safely open/download PDF (handles Data URLs, Blobs & Remote HTTP URLs)
+function openPdfDocument(pdfUrl: string) {
+  if (!pdfUrl) return;
+  if (pdfUrl.startsWith('data:application/pdf')) {
+    try {
+      const base64Data = pdfUrl.split(',')[1];
+      const byteCharacters = atob(base64Data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'application/pdf' });
+      const blobUrl = URL.createObjectURL(blob);
+      window.open(blobUrl, '_blank');
+    } catch {
+      window.open(pdfUrl, '_blank');
+    }
+  } else {
+    window.open(pdfUrl, '_blank');
+  }
+}
+
+function downloadPdfDocument(pdfUrl: string, fileName = 'Trek_Itinerary.pdf') {
+  if (!pdfUrl) return;
+  if (pdfUrl.startsWith('data:application/pdf')) {
+    const a = document.createElement('a');
+    a.href = pdfUrl;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  } else {
+    const a = document.createElement('a');
+    a.href = pdfUrl;
+    a.target = '_blank';
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+}
+
 export default function TrekDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -79,6 +122,8 @@ export default function TrekDetails() {
 
       if (trekData) {
         const hasPdf = Boolean(trekData.itinerary_pdf);
+        const hasCustomDays = Boolean(Array.isArray(trekData.itinerary) && trekData.itinerary.length > 0);
+
         setTrek({
           ...trekData,
           isPackage: false,
@@ -87,7 +132,16 @@ export default function TrekDetails() {
           itinerary: Array.isArray(trekData.itinerary) ? trekData.itinerary : [],
           itinerary_pdf: trekData.itinerary_pdf || null,
         });
-        setActiveTab(hasPdf ? 'pdf' : 'itinerary');
+
+        // Smart default tab select
+        if (hasPdf) {
+          setActiveTab('pdf');
+        } else if (hasCustomDays) {
+          setActiveTab('itinerary');
+        } else {
+          setActiveTab('overview');
+        }
+
         setLoading(false);
         return;
       }
@@ -100,6 +154,9 @@ export default function TrekDetails() {
         .maybeSingle();
 
       if (pkgData) {
+        const hasPdf = Boolean(pkgData.itinerary_pdf);
+        const hasCustomDays = Boolean(Array.isArray(pkgData.itinerary) && pkgData.itinerary.length > 0);
+
         setTrek({
           id: pkgData.id,
           name: pkgData.name,
@@ -120,7 +177,14 @@ export default function TrekDetails() {
           exclusions: Array.isArray(pkgData.exclusions) ? pkgData.exclusions : [],
           isPackage: true,
         });
-        setActiveTab('itinerary');
+
+        if (hasPdf) {
+          setActiveTab('pdf');
+        } else if (hasCustomDays) {
+          setActiveTab('itinerary');
+        } else {
+          setActiveTab('overview');
+        }
       } else {
         toast({ title: 'Trek Not Found', description: 'The requested trek or package could not be found.', variant: 'destructive' });
       }
@@ -136,7 +200,7 @@ export default function TrekDetails() {
       <div className="min-h-screen bg-[#0d0d12] flex items-center justify-center">
         <div className="text-center space-y-4">
           <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-muted-foreground text-sm">Loading trek details & itinerary...</p>
+          <p className="text-muted-foreground text-sm">Loading trek details...</p>
         </div>
       </div>
     );
@@ -167,35 +231,9 @@ export default function TrekDetails() {
   const rawImage = getFirstImage(trek.images, 1200);
   const heroImageSrc = (!imgError && rawImage) ? rawImage : DEFAULT_TREK_IMAGE;
 
-  // Format itinerary days or fallback
-  const itineraryDays: ItineraryItem[] = (trek.itinerary && trek.itinerary.length > 0)
-    ? trek.itinerary
-    : [
-        {
-          day: 1,
-          title: `Arrival & Base Camp Gathering`,
-          description: `Meet the Pahadi mountain guides, complete registration formalities, and attend safety orientation briefing. Overnight stay in scenic mountain camps.`,
-          highlights: `Orientation, Mountain Gear Check, Traditional Pahadi Dinner`
-        },
-        {
-          day: 2,
-          title: `Acclimatization & Scenic Trail Ascent`,
-          description: `Begin early morning ascent through pine forests and mountain streams. Practice altitude breathing and enjoy panoramic Himalayan views.`,
-          highlights: `Pine Forest Trail, Himalayan Stream Crossing, High Vantage Viewpoint`
-        },
-        {
-          day: 3,
-          title: `Summit Darshan & High Altitude Experience`,
-          description: `Reach the central viewpoint for breathtaking views of sacred peaks. Ample time for photography, meditation, and quiet reflection.`,
-          highlights: `Peak Darshan, Sacred Ridge Walk, Sunset Photography`
-        },
-        {
-          day: 4,
-          title: `Descent & Celebration Evening`,
-          description: `Leisurely descent back towards base village. Evening bonfire with traditional Pahadi folklore and music.`,
-          highlights: `Alpine Flora Tour, Bonfire & Folklore Night, Certificate Distribution`
-        }
-      ];
+  // Custom Itinerary Check: ONLY show day-by-day plan if admin explicitly added custom days
+  const hasCustomItinerary = Boolean(trek.itinerary && trek.itinerary.length > 0);
+  const itineraryDays: ItineraryItem[] = hasCustomItinerary ? trek.itinerary! : [];
 
   return (
     <div className="min-h-screen bg-[#0d0d12] text-white selection:bg-primary selection:text-white">
@@ -295,19 +333,22 @@ export default function TrekDetails() {
                 </button>
               )}
 
-              <button
-                onClick={() => setActiveTab('itinerary')}
-                className={`pb-3 text-sm font-semibold transition-all relative ${
-                  activeTab === 'itinerary' ? 'text-primary font-bold' : 'text-gray-400 hover:text-white'
-                }`}
-              >
-                <span className="flex items-center gap-2">
-                  <Clock className="w-4 h-4" /> Day-by-Day Plan ({itineraryDays.length} Days)
-                </span>
-                {activeTab === 'itinerary' && (
-                  <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
-                )}
-              </button>
+              {/* ONLY show Day-by-Day tab if admin explicitly added custom itinerary days */}
+              {hasCustomItinerary && (
+                <button
+                  onClick={() => setActiveTab('itinerary')}
+                  className={`pb-3 text-sm font-semibold transition-all relative ${
+                    activeTab === 'itinerary' ? 'text-primary font-bold' : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  <span className="flex items-center gap-2">
+                    <Clock className="w-4 h-4" /> Day-by-Day Plan ({itineraryDays.length} Days)
+                  </span>
+                  {activeTab === 'itinerary' && (
+                    <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+                  )}
+                </button>
+              )}
 
               <button
                 onClick={() => setActiveTab('overview')}
@@ -353,48 +394,64 @@ export default function TrekDetails() {
                   </div>
 
                   <div className="flex items-center gap-2 w-full sm:w-auto">
-                    <a
-                      href={trek.itinerary_pdf}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 sm:flex-initial"
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 sm:flex-initial border-white/10 gap-1.5 text-xs"
+                      onClick={() => openPdfDocument(trek.itinerary_pdf!)}
                     >
-                      <Button variant="outline" size="sm" className="w-full border-white/10 gap-1.5 text-xs">
-                        <ExternalLink className="w-3.5 h-3.5" /> Open Fullscreen
-                      </Button>
-                    </a>
-                    <a
-                      href={trek.itinerary_pdf}
-                      download
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 sm:flex-initial"
+                      <ExternalLink className="w-3.5 h-3.5" /> Open Fullscreen
+                    </Button>
+                    <Button
+                      size="sm"
+                      className="flex-1 sm:flex-initial pulse-glow gap-1.5 text-xs"
+                      onClick={() => downloadPdfDocument(trek.itinerary_pdf!, `${trek.name.replace(/[^a-z0-9]+/gi, '_')}_Itinerary.pdf`)}
                     >
-                      <Button size="sm" className="w-full pulse-glow gap-1.5 text-xs">
-                        <Download className="w-3.5 h-3.5" /> Download PDF
-                      </Button>
-                    </a>
+                      <Download className="w-3.5 h-3.5" /> Download PDF
+                    </Button>
                   </div>
                 </div>
 
-                {/* Embedded PDF Viewer */}
-                <div className="bg-[#14141f] border border-white/10 rounded-2xl overflow-hidden shadow-2xl h-[650px] relative">
-                  <iframe
-                    src={`https://docs.google.com/gview?url=${encodeURIComponent(trek.itinerary_pdf)}&embedded=true`}
-                    title="PDF Itinerary Preview"
-                    className="w-full h-full border-none"
-                    onError={() => {
-                      // Fallback iframe directly
-                      const iframe = document.querySelector('iframe');
-                      if (iframe && trek.itinerary_pdf) iframe.src = trek.itinerary_pdf;
-                    }}
-                  />
+                {/* Embedded Native PDF Viewer */}
+                <div className="bg-[#14141f] border border-white/10 rounded-2xl overflow-hidden shadow-2xl min-h-[500px] h-[650px] relative flex flex-col items-center justify-center">
+                  <object
+                    data={trek.itinerary_pdf}
+                    type="application/pdf"
+                    className="w-full h-full"
+                  >
+                    <embed
+                      src={trek.itinerary_pdf}
+                      type="application/pdf"
+                      className="w-full h-full"
+                    />
+                    {/* Fallback card if browser PDF plugin is missing or blocked */}
+                    <div className="p-8 text-center space-y-4 max-w-md my-auto">
+                      <FileText className="w-16 h-16 text-red-400 mx-auto opacity-70" />
+                      <h4 className="text-xl font-bold text-white">Official PDF Itinerary Attached</h4>
+                      <p className="text-xs text-gray-400">Click below to view or download the complete PDF itinerary document for {trek.name}.</p>
+                      <div className="flex justify-center gap-3 pt-2">
+                        <Button
+                          onClick={() => openPdfDocument(trek.itinerary_pdf!)}
+                          variant="outline"
+                          className="border-white/20 gap-2 text-xs"
+                        >
+                          <Eye className="w-4 h-4 text-primary" /> View Document
+                        </Button>
+                        <Button
+                          onClick={() => downloadPdfDocument(trek.itinerary_pdf!, `${trek.name.replace(/[^a-z0-9]+/gi, '_')}_Itinerary.pdf`)}
+                          className="pulse-glow gap-2 text-xs"
+                        >
+                          <Download className="w-4 h-4" /> Download PDF
+                        </Button>
+                      </div>
+                    </div>
+                  </object>
                 </div>
               </motion.div>
             )}
 
-            {/* TAB: DAY-BY-DAY ITINERARY */}
-            {activeTab === 'itinerary' && (
+            {/* TAB: DAY-BY-DAY ITINERARY (ONLY IF ADDED) */}
+            {activeTab === 'itinerary' && hasCustomItinerary && (
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
                 <div className="flex items-center justify-between mb-2">
                   <h2 className="font-serif text-2xl font-bold text-white">Day-by-Day Trip Plan</h2>
@@ -536,15 +593,6 @@ export default function TrekDetails() {
                   Per Person
                 </span>
               </div>
-
-              {/* PDF Itinerary Quick Button */}
-              {trek.itinerary_pdf && (
-                <a href={trek.itinerary_pdf} target="_blank" rel="noopener noreferrer">
-                  <Button variant="outline" className="w-full border-red-400/30 text-red-400 hover:bg-red-400/10 gap-2 text-xs py-2.5 h-auto">
-                    <FileText className="w-4 h-4" /> Download Official PDF Itinerary
-                  </Button>
-                </a>
-              )}
 
               {/* Seats availability */}
               <div className="space-y-2 bg-white/5 p-4 rounded-2xl border border-white/5">
