@@ -34,6 +34,7 @@ interface Trek {
   images: string[];
   highlights: string[];
   itinerary?: ItineraryItem[];
+  itinerary_pdf?: string | null;
   is_upcoming: boolean;
   is_active: boolean;
   created_at: string;
@@ -44,6 +45,7 @@ const emptyTrek = {
   price: '', difficulty: 'moderate', max_seats: '20', seats_booked: '0',
   image_url: '', highlights_text: '', is_upcoming: true, is_active: true,
   itinerary: [] as ItineraryItem[],
+  itinerary_pdf: '',
 };
 
 export default function Treks() {
@@ -56,6 +58,7 @@ export default function Treks() {
   const [form, setForm] = useState(emptyTrek);
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadingPdf, setUploadingPdf] = useState(false);
 
   useEffect(() => {
     fetchTreks();
@@ -112,6 +115,7 @@ export default function Treks() {
       is_upcoming: trek.is_upcoming ?? true,
       is_active: trek.is_active ?? true,
       itinerary: Array.isArray(trek.itinerary) ? trek.itinerary : [],
+      itinerary_pdf: trek.itinerary_pdf || '',
     });
     setDialogOpen(true);
   };
@@ -166,6 +170,7 @@ export default function Treks() {
       images,
       highlights,
       itinerary: form.itinerary || [],
+      itinerary_pdf: form.itinerary_pdf || null,
       is_upcoming: form.is_upcoming,
       is_active: form.is_active,
     };
@@ -244,6 +249,44 @@ export default function Treks() {
       });
     } finally {
       setUploadingImage(false);
+    }
+  };
+
+  const handlePdfUpload = async (file: File) => {
+    if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+      toast({ title: 'Invalid file', description: 'Please select a PDF document file.', variant: 'destructive' });
+      return;
+    }
+
+    setUploadingPdf(true);
+    const safeName = (form.name || 'trek').toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/(^-|-$)/g, '') || 'trek';
+    const filePath = `itineraries/${safeName}/${Date.now()}-${crypto.randomUUID()}.pdf`;
+
+    try {
+      const { error } = await supabase.storage
+        .from('trek-images')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true,
+          contentType: 'application/pdf',
+        });
+
+      if (error) throw error;
+
+      const { data } = supabase.storage
+        .from('trek-images')
+        .getPublicUrl(filePath);
+
+      setForm(prev => ({ ...prev, itinerary_pdf: data.publicUrl }));
+      toast({ title: 'PDF uploaded!', description: 'The itinerary PDF is ready and linked.' });
+    } catch (err: any) {
+      toast({
+        title: 'PDF Upload failed',
+        description: err.message || 'Could not upload PDF itinerary.',
+        variant: 'destructive',
+      });
+    } finally {
+      setUploadingPdf(false);
     }
   };
 
@@ -480,6 +523,48 @@ export default function Treks() {
                   />
                 </div>
               </div>
+            </div>
+
+            {/* PDF Itinerary File Upload */}
+            <div className="border border-white/10 rounded-xl p-4 bg-white/[0.02] space-y-3">
+              <Label className="text-sm font-semibold text-white block">Official PDF Itinerary Document</Label>
+              <p className="text-xs text-muted-foreground">Upload a PDF itinerary to display directly on the trek page</p>
+              
+              <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap">
+                <input
+                  id="trek-pdf-upload"
+                  type="file"
+                  accept="application/pdf"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handlePdfUpload(file);
+                    e.currentTarget.value = '';
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="border-white/10 gap-2 text-xs flex-shrink-0"
+                  disabled={uploadingPdf}
+                  onClick={() => document.getElementById('trek-pdf-upload')?.click()}
+                >
+                  <Upload className="w-4 h-4 text-red-400" />
+                  {uploadingPdf ? 'Uploading PDF...' : 'Upload PDF Document'}
+                </Button>
+                <Input
+                  value={form.itinerary_pdf || ''}
+                  onChange={e => setForm(p => ({ ...p, itinerary_pdf: e.target.value }))}
+                  placeholder="Or paste PDF Document URL..."
+                  className="bg-white/5 border-white/10 text-xs flex-1"
+                />
+              </div>
+
+              {form.itinerary_pdf && (
+                <div className="text-xs text-green-400 flex items-center gap-1.5 pt-1">
+                  <Check className="w-3.5 h-3.5" /> PDF Linked: <span className="underline truncate max-w-xs">{form.itinerary_pdf}</span>
+                </div>
+              )}
             </div>
             {/* Trip Itinerary Builder */}
             <div className="border border-white/10 rounded-xl p-4 bg-white/[0.02] space-y-3">

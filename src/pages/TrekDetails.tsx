@@ -3,11 +3,11 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronLeft, Mountain, MapPin, Calendar, Users, ArrowRight,
-  CheckCircle2, Clock, ShieldCheck, Phone, Mail, Award, Check, Sparkles, AlertCircle
+  CheckCircle2, Clock, ShieldCheck, Phone, Mail, Award, Check, Sparkles,
+  AlertCircle, FileText, Download, ExternalLink, Eye, ImageOff
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import TrekRegistrationForm from '@/components/TrekRegistrationForm';
 import { getFirstImage } from '@/lib/utils';
@@ -34,6 +34,7 @@ interface TrekDetail {
   images: string[];
   highlights: string[];
   itinerary?: ItineraryItem[];
+  itinerary_pdf?: string | null;
   duration_days?: number;
   inclusions?: string[];
   exclusions?: string[];
@@ -46,15 +47,18 @@ const difficultyConfig: Record<string, { label: string; color: string; bg: strin
   hard: { label: 'Challenging Trek', color: 'text-red-400', bg: 'bg-red-400/10 border-red-400/20' },
 };
 
+const DEFAULT_TREK_IMAGE = 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80';
+
 export default function TrekDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [trek, setTrek] = useState<TrekDetail | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'itinerary' | 'overview' | 'inclusions'>('itinerary');
+  const [activeTab, setActiveTab] = useState<'pdf' | 'itinerary' | 'overview' | 'inclusions'>('pdf');
   const [regFormOpen, setRegFormOpen] = useState(false);
   const [activeDay, setActiveDay] = useState<number | null>(1);
+  const [imgError, setImgError] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -64,22 +68,26 @@ export default function TrekDetails() {
 
   const fetchTrekDetails = async (trekId: string) => {
     setLoading(true);
+    setImgError(false);
     try {
       // 1. Check treks table first
-      const { data: trekData, error: trekErr } = await supabase
+      const { data: trekData } = await supabase
         .from('treks')
         .select('*')
         .eq('id', trekId)
         .maybeSingle();
 
       if (trekData) {
+        const hasPdf = Boolean(trekData.itinerary_pdf);
         setTrek({
           ...trekData,
           isPackage: false,
           images: Array.isArray(trekData.images) ? trekData.images : [],
           highlights: Array.isArray(trekData.highlights) ? trekData.highlights : [],
           itinerary: Array.isArray(trekData.itinerary) ? trekData.itinerary : [],
+          itinerary_pdf: trekData.itinerary_pdf || null,
         });
+        setActiveTab(hasPdf ? 'pdf' : 'itinerary');
         setLoading(false);
         return;
       }
@@ -106,11 +114,13 @@ export default function TrekDetails() {
           images: Array.isArray(pkgData.images) ? pkgData.images : [],
           highlights: Array.isArray(pkgData.inclusions) ? pkgData.inclusions : [],
           itinerary: Array.isArray(pkgData.itinerary) ? pkgData.itinerary : [],
+          itinerary_pdf: pkgData.itinerary_pdf || null,
           duration_days: pkgData.duration_days,
           inclusions: Array.isArray(pkgData.inclusions) ? pkgData.inclusions : [],
           exclusions: Array.isArray(pkgData.exclusions) ? pkgData.exclusions : [],
           isPackage: true,
         });
+        setActiveTab('itinerary');
       } else {
         toast({ title: 'Trek Not Found', description: 'The requested trek or package could not be found.', variant: 'destructive' });
       }
@@ -152,7 +162,10 @@ export default function TrekDetails() {
   const seatsBooked = trek.seats_booked || 0;
   const seatsLeft = Math.max(0, maxSeats - seatsBooked);
   const seatsPercent = Math.min(100, Math.round((seatsBooked / maxSeats) * 100));
-  const mainImage = getFirstImage(trek.images, 1200) || 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80';
+
+  // Image source with fallback check
+  const rawImage = getFirstImage(trek.images, 1200);
+  const heroImageSrc = (!imgError && rawImage) ? rawImage : DEFAULT_TREK_IMAGE;
 
   // Format itinerary days or fallback
   const itineraryDays: ItineraryItem[] = (trek.itinerary && trek.itinerary.length > 0)
@@ -185,19 +198,20 @@ export default function TrekDetails() {
       ];
 
   return (
-    <div className="min-h-screen bg-[#0d0d12] text-foreground selection:bg-primary selection:text-white">
+    <div className="min-h-screen bg-[#0d0d12] text-white selection:bg-primary selection:text-white">
       {/* Top Header */}
-      <nav className="sticky top-0 z-40 bg-[#0d0d12]/90 backdrop-blur-md border-b border-white/10 px-4 lg:px-8 py-3">
+      <nav className="sticky top-0 z-40 bg-[#0d0d12]/95 backdrop-blur-md border-b border-white/10 px-4 lg:px-8 py-3">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <button
             onClick={() => navigate('/')}
-            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-white transition-colors"
+            className="flex items-center gap-2 text-sm text-gray-300 hover:text-white transition-colors"
           >
             <ChevronLeft className="w-4 h-4" />
             <span>Back to Treks</span>
           </button>
-          
-          <div className="flex items-center gap-2">
+
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
+            <Mountain className="w-5 h-5 text-primary" />
             <span className="font-serif text-lg font-bold text-white hidden sm:inline-block">
               Himalayan Trails <span className="text-primary">&</span> Tales
             </span>
@@ -214,30 +228,31 @@ export default function TrekDetails() {
       </nav>
 
       {/* Main Banner Hero */}
-      <section className="relative min-h-[50vh] lg:min-h-[60vh] flex items-end overflow-hidden">
+      <section className="relative min-h-[45vh] lg:min-h-[55vh] flex items-end overflow-hidden bg-[#161622]">
         <div className="absolute inset-0 z-0">
           <img
-            src={mainImage}
+            src={heroImageSrc}
             alt={trek.name}
-            className="w-full h-full object-cover filter brightness-[0.65]"
+            onError={() => setImgError(true)}
+            className="w-full h-full object-cover filter brightness-[0.7] transition-all duration-700"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d12] via-[#0d0d12]/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d12] via-[#0d0d12]/50 to-black/30" />
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 lg:px-8 pb-10 pt-20 w-full">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 lg:px-8 pb-10 pt-16 w-full">
           <div className="max-w-3xl space-y-4">
             <div className="flex flex-wrap items-center gap-2">
               <Badge className={`${diff.bg} ${diff.color} border px-3 py-1 font-medium capitalize text-xs`}>
                 {diff.label}
               </Badge>
               {trek.location && (
-                <Badge variant="outline" className="border-white/20 bg-black/40 text-white gap-1 text-xs">
+                <Badge variant="outline" className="border-white/20 bg-black/50 text-white gap-1 text-xs backdrop-blur-md">
                   <MapPin className="w-3 h-3 text-primary" />
                   {trek.location}
                 </Badge>
               )}
               {trek.start_date && (
-                <Badge variant="outline" className="border-white/20 bg-black/40 text-white gap-1 text-xs">
+                <Badge variant="outline" className="border-white/20 bg-black/50 text-white gap-1 text-xs backdrop-blur-md">
                   <Calendar className="w-3 h-3 text-primary" />
                   Starts: {new Date(trek.start_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                 </Badge>
@@ -248,7 +263,7 @@ export default function TrekDetails() {
               {trek.name}
             </h1>
 
-            <p className="text-gray-300 text-sm sm:text-base line-clamp-3 leading-relaxed max-w-2xl">
+            <p className="text-gray-200 text-sm sm:text-base line-clamp-3 leading-relaxed max-w-2xl">
               {trek.description}
             </p>
           </div>
@@ -258,20 +273,36 @@ export default function TrekDetails() {
       {/* Details & Sidebar Section */}
       <section className="max-w-7xl mx-auto px-4 lg:px-8 py-8 lg:py-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
-          {/* Left Column: Itinerary & Overview */}
+
+          {/* Left Column: PDF, Itinerary & Overview */}
           <div className="lg:col-span-2 space-y-8">
-            
+
             {/* Tab Controls */}
-            <div className="flex border-b border-white/10 gap-6">
+            <div className="flex border-b border-white/10 gap-4 sm:gap-6 flex-wrap">
+              {trek.itinerary_pdf && (
+                <button
+                  onClick={() => setActiveTab('pdf')}
+                  className={`pb-3 text-sm font-semibold transition-all relative ${
+                    activeTab === 'pdf' ? 'text-primary font-bold' : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  <span className="flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-red-400" /> PDF Itinerary
+                  </span>
+                  {activeTab === 'pdf' && (
+                    <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+                  )}
+                </button>
+              )}
+
               <button
                 onClick={() => setActiveTab('itinerary')}
                 className={`pb-3 text-sm font-semibold transition-all relative ${
-                  activeTab === 'itinerary' ? 'text-primary' : 'text-muted-foreground hover:text-white'
+                  activeTab === 'itinerary' ? 'text-primary font-bold' : 'text-gray-400 hover:text-white'
                 }`}
               >
                 <span className="flex items-center gap-2">
-                  <Clock className="w-4 h-4" /> Trip Itinerary ({itineraryDays.length} Days)
+                  <Clock className="w-4 h-4" /> Day-by-Day Plan ({itineraryDays.length} Days)
                 </span>
                 {activeTab === 'itinerary' && (
                   <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
@@ -281,7 +312,7 @@ export default function TrekDetails() {
               <button
                 onClick={() => setActiveTab('overview')}
                 className={`pb-3 text-sm font-semibold transition-all relative ${
-                  activeTab === 'overview' ? 'text-primary' : 'text-muted-foreground hover:text-white'
+                  activeTab === 'overview' ? 'text-primary font-bold' : 'text-gray-400 hover:text-white'
                 }`}
               >
                 <span className="flex items-center gap-2">
@@ -295,7 +326,7 @@ export default function TrekDetails() {
               <button
                 onClick={() => setActiveTab('inclusions')}
                 className={`pb-3 text-sm font-semibold transition-all relative ${
-                  activeTab === 'inclusions' ? 'text-primary' : 'text-muted-foreground hover:text-white'
+                  activeTab === 'inclusions' ? 'text-primary font-bold' : 'text-gray-400 hover:text-white'
                 }`}
               >
                 <span className="flex items-center gap-2">
@@ -307,12 +338,67 @@ export default function TrekDetails() {
               </button>
             </div>
 
-            {/* TAB 1: ITINERARY */}
+            {/* TAB: PDF ITINERARY VIEWER */}
+            {activeTab === 'pdf' && trek.itinerary_pdf && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                <div className="bg-[#14141f] border border-white/10 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-xl bg-red-400/10 border border-red-400/20 text-red-400 flex items-center justify-center flex-shrink-0">
+                      <FileText className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h3 className="font-serif text-lg font-bold text-white">Official PDF Itinerary</h3>
+                      <p className="text-xs text-gray-400">Complete trip breakdown & guidelines in PDF format</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <a
+                      href={trek.itinerary_pdf}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 sm:flex-initial"
+                    >
+                      <Button variant="outline" size="sm" className="w-full border-white/10 gap-1.5 text-xs">
+                        <ExternalLink className="w-3.5 h-3.5" /> Open Fullscreen
+                      </Button>
+                    </a>
+                    <a
+                      href={trek.itinerary_pdf}
+                      download
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 sm:flex-initial"
+                    >
+                      <Button size="sm" className="w-full pulse-glow gap-1.5 text-xs">
+                        <Download className="w-3.5 h-3.5" /> Download PDF
+                      </Button>
+                    </a>
+                  </div>
+                </div>
+
+                {/* Embedded PDF Viewer */}
+                <div className="bg-[#14141f] border border-white/10 rounded-2xl overflow-hidden shadow-2xl h-[650px] relative">
+                  <iframe
+                    src={`https://docs.google.com/gview?url=${encodeURIComponent(trek.itinerary_pdf)}&embedded=true`}
+                    title="PDF Itinerary Preview"
+                    className="w-full h-full border-none"
+                    onError={() => {
+                      // Fallback iframe directly
+                      const iframe = document.querySelector('iframe');
+                      if (iframe && trek.itinerary_pdf) iframe.src = trek.itinerary_pdf;
+                    }}
+                  />
+                </div>
+              </motion.div>
+            )}
+
+            {/* TAB: DAY-BY-DAY ITINERARY */}
             {activeTab === 'itinerary' && (
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
                 <div className="flex items-center justify-between mb-2">
-                  <h2 className="font-serif text-2xl font-bold text-white">Day-by-Day Itinerary</h2>
-                  <span className="text-xs text-muted-foreground">Click any day to view details</span>
+                  <h2 className="font-serif text-2xl font-bold text-white">Day-by-Day Trip Plan</h2>
+                  <span className="text-xs text-gray-400">Click any day to view details</span>
                 </div>
 
                 <div className="space-y-3">
@@ -338,7 +424,7 @@ export default function TrekDetails() {
                               <h3 className="font-semibold text-white text-base truncate">{item.title}</h3>
                             </div>
                           </div>
-                          <span className="text-xs text-muted-foreground bg-white/5 px-3 py-1 rounded-full flex-shrink-0">
+                          <span className="text-xs text-gray-400 bg-white/5 px-3 py-1 rounded-full flex-shrink-0">
                             {isOpen ? 'Close' : 'View'}
                           </span>
                         </button>
@@ -371,7 +457,7 @@ export default function TrekDetails() {
               </motion.div>
             )}
 
-            {/* TAB 2: OVERVIEW */}
+            {/* TAB: OVERVIEW */}
             {activeTab === 'overview' && (
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
                 <div className="bg-[#12121a] border border-white/10 rounded-2xl p-6 space-y-4">
@@ -399,7 +485,7 @@ export default function TrekDetails() {
               </motion.div>
             )}
 
-            {/* TAB 3: INCLUSIONS */}
+            {/* TAB: INCLUSIONS */}
             {activeTab === 'inclusions' && (
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -438,10 +524,10 @@ export default function TrekDetails() {
           {/* Right Column: Sticky Pricing & Registration Card */}
           <div className="lg:col-span-1">
             <div className="sticky top-24 bg-[#14141f] border border-white/10 rounded-3xl p-6 space-y-6 shadow-2xl">
-              
+
               <div className="flex items-baseline justify-between">
                 <div>
-                  <span className="text-xs text-muted-foreground block">Trek Price</span>
+                  <span className="text-xs text-gray-400 block">Trek Price</span>
                   <div className="text-3xl font-extrabold text-white">
                     {trek.price ? `₹${trek.price.toLocaleString()}` : 'Price on Request'}
                   </div>
@@ -450,6 +536,15 @@ export default function TrekDetails() {
                   Per Person
                 </span>
               </div>
+
+              {/* PDF Itinerary Quick Button */}
+              {trek.itinerary_pdf && (
+                <a href={trek.itinerary_pdf} target="_blank" rel="noopener noreferrer">
+                  <Button variant="outline" className="w-full border-red-400/30 text-red-400 hover:bg-red-400/10 gap-2 text-xs py-2.5 h-auto">
+                    <FileText className="w-4 h-4" /> Download Official PDF Itinerary
+                  </Button>
+                </a>
+              )}
 
               {/* Seats availability */}
               <div className="space-y-2 bg-white/5 p-4 rounded-2xl border border-white/5">
@@ -477,13 +572,13 @@ export default function TrekDetails() {
                 <ArrowRight className="w-5 h-5" />
               </Button>
 
-              <div className="pt-2 border-t border-white/10 space-y-3 text-xs text-muted-foreground">
+              <div className="pt-2 border-t border-white/10 space-y-3 text-xs text-gray-400">
                 <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-green-400" />
+                  <ShieldCheck className="w-4 h-4 text-green-400 flex-shrink-0" />
                   <span>Instant confirmation & 24/7 Pahadi support</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-primary" />
+                  <Phone className="w-4 h-4 text-primary flex-shrink-0" />
                   <span>Need help? Call +91 8630113945</span>
                 </div>
               </div>
