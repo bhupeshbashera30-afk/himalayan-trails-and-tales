@@ -279,53 +279,41 @@ export default function Treks() {
       return;
     }
 
+    if (file.size > 20 * 1024 * 1024) {
+      toast({ title: 'File too large', description: 'Please upload a PDF under 20 MB.', variant: 'destructive' });
+      return;
+    }
+
     setUploadingPdf(true);
+    const safeName = (form.name || 'trek').toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/(^-|-$)/g, '') || 'trek';
+    const filePath = `itineraries/${safeName}/${Date.now()}-${crypto.randomUUID()}.pdf`;
 
-    // Read PDF file as Data URL first (100% reliable payload without 404)
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      const dataUrl = e.target?.result as string;
-      if (!dataUrl) {
-        setUploadingPdf(false);
-        return;
-      }
+    try {
+      const { data, error } = await supabase.storage
+        .from('trek-images')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true,
+          contentType: 'application/pdf',
+        });
 
-      // Default to Data URL
-      setForm(prev => ({ ...prev, itinerary_pdf: dataUrl }));
+      if (error) throw error;
 
-      // Also attempt storage upload in background
-      const safeName = (form.name || 'trek').toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/(^-|-$)/g, '') || 'trek';
-      const filePath = `itineraries/${safeName}/${Date.now()}-${crypto.randomUUID()}.pdf`;
+      const { data: urlData } = supabase.storage
+        .from('trek-images')
+        .getPublicUrl(filePath);
 
-      try {
-        const { data, error } = await supabase.storage
-          .from('trek-images')
-          .upload(filePath, file, {
-            cacheControl: '3600',
-            upsert: true,
-          });
-
-        if (!error && data?.path) {
-          const { data: urlData } = supabase.storage.from('trek-images').getPublicUrl(data.path);
-          // Verify public URL is reachable
-          try {
-            const checkHead = await fetch(urlData.publicUrl, { method: 'HEAD' });
-            if (checkHead.ok) {
-              setForm(prev => ({ ...prev, itinerary_pdf: urlData.publicUrl }));
-            }
-          } catch {
-            // Keep Data URL
-          }
-        }
-      } catch {
-        // Keep Data URL
-      } finally {
-        setUploadingPdf(false);
-        toast({ title: 'PDF Attached!', description: 'Official PDF itinerary linked successfully.' });
-      }
-    };
-
-    reader.readAsDataURL(file);
+      setForm(prev => ({ ...prev, itinerary_pdf: urlData.publicUrl }));
+      toast({ title: 'PDF Uploaded!', description: 'Official PDF itinerary linked successfully.' });
+    } catch (err: any) {
+      toast({
+        title: 'Upload failed',
+        description: err.message || 'Could not upload PDF itinerary.',
+        variant: 'destructive',
+      });
+    } finally {
+      setUploadingPdf(false);
+    }
   };
 
   return (
