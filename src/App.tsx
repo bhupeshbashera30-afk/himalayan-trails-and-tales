@@ -7,6 +7,7 @@ import { AuthProvider } from "@/components/AuthProvider";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import CategoryPage from "./pages/CategoryPage";
+import TrekDetails from "./pages/TrekDetails";
 import AdminLogin from "./pages/AdminLogin";
 import Admin from "./pages/Admin";
 import Dashboard from "./pages/admin/Dashboard";
@@ -33,6 +34,7 @@ const App = () => (
             {/* Public routes */}
             <Route path="/" element={<Index />} />
             <Route path="/category/:slug" element={<CategoryPage />} />
+            <Route path="/trek/:id" element={<TrekDetails />} />
 
             {/* Admin login - hidden from main nav, access via /admin */}
             <Route path="/admin" element={<AdminLogin />} />

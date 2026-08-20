@@ -13,6 +13,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 
+interface ItineraryItem {
+  day: number;
+  title: string;
+  description: string;
+  highlights?: string;
+}
+
 interface Trek {
   id: string;
   name: string;
@@ -26,6 +33,7 @@ interface Trek {
   seats_booked: number;
   images: string[];
   highlights: string[];
+  itinerary?: ItineraryItem[];
   is_upcoming: boolean;
   is_active: boolean;
   created_at: string;
@@ -35,6 +43,7 @@ const emptyTrek = {
   name: '', description: '', location: '', start_date: '', end_date: '',
   price: '', difficulty: 'moderate', max_seats: '20', seats_booked: '0',
   image_url: '', highlights_text: '', is_upcoming: true, is_active: true,
+  itinerary: [] as ItineraryItem[],
 };
 
 export default function Treks() {
@@ -102,8 +111,40 @@ export default function Treks() {
       highlights_text: Array.isArray(trek.highlights) ? trek.highlights.join('\n') : '',
       is_upcoming: trek.is_upcoming ?? true,
       is_active: trek.is_active ?? true,
+      itinerary: Array.isArray(trek.itinerary) ? trek.itinerary : [],
     });
     setDialogOpen(true);
+  };
+
+  const addItineraryDay = () => {
+    setForm(prev => {
+      const nextDay = (prev.itinerary?.length || 0) + 1;
+      return {
+        ...prev,
+        itinerary: [
+          ...(prev.itinerary || []),
+          { day: nextDay, title: `Day ${nextDay} Trail`, description: '', highlights: '' }
+        ]
+      };
+    });
+  };
+
+  const removeItineraryDay = (index: number) => {
+    setForm(prev => ({
+      ...prev,
+      itinerary: (prev.itinerary || [])
+        .filter((_, i) => i !== index)
+        .map((item, idx) => ({ ...item, day: idx + 1 }))
+    }));
+  };
+
+  const updateItineraryDay = (index: number, key: keyof ItineraryItem, value: any) => {
+    setForm(prev => ({
+      ...prev,
+      itinerary: (prev.itinerary || []).map((item, idx) => 
+        idx === index ? { ...item, [key]: value } : item
+      )
+    }));
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -124,6 +165,7 @@ export default function Treks() {
       seats_booked: parseInt(form.seats_booked) || 0,
       images,
       highlights,
+      itinerary: form.itinerary || [],
       is_upcoming: form.is_upcoming,
       is_active: form.is_active,
     };
@@ -439,6 +481,57 @@ export default function Treks() {
                 </div>
               </div>
             </div>
+            {/* Trip Itinerary Builder */}
+            <div className="border border-white/10 rounded-xl p-4 bg-white/[0.02] space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="text-sm font-semibold text-white">Trip Itinerary (Day-by-Day)</Label>
+                  <p className="text-xs text-muted-foreground">Add day titles & descriptions for the itinerary page</p>
+                </div>
+                <Button type="button" size="sm" variant="outline" className="border-white/10 gap-1 text-xs" onClick={addItineraryDay}>
+                  <Plus className="w-3.5 h-3.5" /> Add Day
+                </Button>
+              </div>
+
+              {(!form.itinerary || form.itinerary.length === 0) ? (
+                <div className="text-xs text-center py-4 text-muted-foreground border border-dashed border-white/10 rounded-lg">
+                  No custom itinerary days added yet. Click "Add Day" above to customize the day-by-day itinerary.
+                </div>
+              ) : (
+                <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
+                  {form.itinerary.map((item, idx) => (
+                    <div key={idx} className="bg-white/5 border border-white/10 rounded-lg p-3 space-y-2 text-xs">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-semibold text-primary">Day {item.day || idx + 1}</span>
+                        <Button type="button" size="icon" variant="ghost" className="h-6 w-6 text-red-400 hover:bg-red-400/10" onClick={() => removeItineraryDay(idx)}>
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </div>
+                      <Input
+                        placeholder="Day Title (e.g. Arrival & Base Camp)"
+                        value={item.title || ''}
+                        onChange={e => updateItineraryDay(idx, 'title', e.target.value)}
+                        className="bg-black/20 border-white/10 h-8 text-xs"
+                      />
+                      <Textarea
+                        placeholder="Day Description..."
+                        value={item.description || ''}
+                        onChange={e => updateItineraryDay(idx, 'description', e.target.value)}
+                        rows={2}
+                        className="bg-black/20 border-white/10 text-xs"
+                      />
+                      <Input
+                        placeholder="Key Highlights (optional)..."
+                        value={item.highlights || ''}
+                        onChange={e => updateItineraryDay(idx, 'highlights', e.target.value)}
+                        className="bg-black/20 border-white/10 h-7 text-[11px]"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <div>
               <Label className="text-sm mb-1 block">Highlights (one per line)</Label>
               <Textarea value={form.highlights_text} onChange={e => setForm(p => ({ ...p, highlights_text: e.target.value }))} rows={3} placeholder="Summit views at 12,500 ft&#10;Snow-covered trails&#10;Camping under stars" className="bg-white/5 border-white/10" />

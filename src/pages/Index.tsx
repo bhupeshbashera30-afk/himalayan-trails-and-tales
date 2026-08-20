@@ -738,7 +738,10 @@ export default function Index() {
                     viewport={{ once: true }}
                     className="group"
                   >
-                    <div className="glass rounded-2xl md:rounded-2xl rounded-xl overflow-hidden hover:shadow-2xl transition-all duration-500 h-full flex flex-col">
+                    <div 
+                      className="glass rounded-2xl md:rounded-2xl rounded-xl overflow-hidden hover:shadow-2xl transition-all duration-500 h-full flex flex-col cursor-pointer"
+                      onClick={() => navigate(`/trek/${trek.id}`)}
+                    >
                       {/* Image */}
                       <div className="relative overflow-hidden h-32 md:h-56">
                         <img
@@ -781,7 +784,9 @@ export default function Index() {
 
                       {/* Content */}
                       <div className="p-3 md:p-5 flex flex-col flex-1">
-                        <h3 className="font-serif text-sm md:text-xl font-bold mb-1.5 md:mb-2 line-clamp-2">{trek.name}</h3>
+                        <div className="flex items-center justify-between gap-2 mb-1.5 md:mb-2">
+                          <h3 className="font-serif text-sm md:text-xl font-bold line-clamp-2 hover:text-primary transition-colors">{trek.name}</h3>
+                        </div>
 
                         {/* Compact 2-column info grid */}
                         <div className="grid grid-cols-2 gap-x-2 gap-y-1 md:gap-y-1.5 mb-2 md:mb-3 text-[11px] md:text-sm">
@@ -836,7 +841,10 @@ export default function Index() {
 
                         <Button
                           className="w-full pulse-glow mt-auto text-[11px] md:text-sm py-1.5 md:py-2 h-auto"
-                          onClick={() => openTrekRegistration(trek)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openTrekRegistration(trek);
+                          }}
                           disabled={seatsLeft <= 0}
                         >
                           {seatsLeft <= 0 ? 'Fully Booked' : 'Register Interest'}
@@ -887,7 +895,10 @@ export default function Index() {
                   transition={{ duration: 0.6, delay: index * 0.1 }}
                   viewport={{ once: true }}
                 >
-                  <div className="w-full bg-[#161622]/60 backdrop-blur-md border border-white/5 rounded-2xl overflow-hidden hover:border-primary/30 transition-all duration-500 flex flex-col group shadow-lg">
+                  <div 
+                    className="w-full bg-[#161622]/60 backdrop-blur-md border border-white/5 rounded-2xl overflow-hidden hover:border-primary/30 transition-all duration-500 flex flex-col group shadow-lg cursor-pointer"
+                    onClick={() => navigate(`/trek/${pkg.id}`)}
+                  >
                     {/* Image container */}
                     <div className="relative h-32 md:h-52 overflow-hidden flex-shrink-0">
                       <img
@@ -908,7 +919,7 @@ export default function Index() {
 
                     {/* Content */}
                     <div className="p-3 md:p-5 flex flex-col flex-1">
-                      <h3 className="font-serif text-sm md:text-xl font-bold mb-1.5 md:mb-2 line-clamp-2 text-white">{pkg.name}</h3>
+                      <h3 className="font-serif text-sm md:text-xl font-bold mb-1.5 md:mb-2 line-clamp-2 text-white hover:text-primary transition-colors">{pkg.name}</h3>
                       <p className="text-[11px] md:text-xs text-muted-foreground line-clamp-2 mb-2 md:mb-3">{pkg.description}</p>
 
                       {/* Compact 2-column info grid */}
@@ -956,7 +967,10 @@ export default function Index() {
 
                       <Button
                         className="w-full pulse-glow mt-auto text-[11px] md:text-sm py-1.5 md:py-2 h-auto"
-                        onClick={() => openTrekRegistration(pkg, true)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openTrekRegistration(pkg, true);
+                        }}
                         disabled={seatsLeft <= 0}
                       >
                         {seatsLeft <= 0 ? 'Fully Booked' : 'Register Interest'}
