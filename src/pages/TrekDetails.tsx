@@ -465,39 +465,12 @@ export default function TrekDetails() {
                 </div>
 
                 {/* Embedded Native PDF Viewer */}
-                <div className="bg-[#14141f] border border-white/10 rounded-2xl overflow-hidden shadow-2xl min-h-[500px] h-[650px] relative flex flex-col items-center justify-center">
-                  <object
-                    data={trek.itinerary_pdf}
-                    type="application/pdf"
-                    className="w-full h-full"
-                  >
-                    <embed
-                      src={trek.itinerary_pdf}
-                      type="application/pdf"
-                      className="w-full h-full"
-                    />
-                    {/* Fallback card if browser PDF plugin is missing or blocked */}
-                    <div className="p-8 text-center space-y-4 max-w-md my-auto">
-                      <FileText className="w-16 h-16 text-red-400 mx-auto opacity-70" />
-                      <h4 className="text-xl font-bold text-white">Official PDF Itinerary Attached</h4>
-                      <p className="text-xs text-gray-400">Click below to view or download the complete PDF itinerary document for {trek.name}.</p>
-                      <div className="flex justify-center gap-3 pt-2">
-                        <Button
-                          onClick={() => openPdfDocument(trek.itinerary_pdf!, toast)}
-                          variant="outline"
-                          className="border-white/20 gap-2 text-xs"
-                        >
-                          <Eye className="w-4 h-4 text-primary" /> View Document
-                        </Button>
-                        <Button
-                          onClick={() => downloadPdfDocument(trek.itinerary_pdf!, `${trek.name.replace(/[^a-z0-9]+/gi, '_')}_Itinerary.pdf`, toast)}
-                          className="pulse-glow gap-2 text-xs"
-                        >
-                          <Download className="w-4 h-4" /> Download PDF
-                        </Button>
-                      </div>
-                    </div>
-                  </object>
+                <div className="bg-[#14141f] border border-white/10 rounded-2xl overflow-hidden shadow-2xl min-h-[550px] h-[700px] relative">
+                  <iframe
+                    src={trek.itinerary_pdf}
+                    title="Official PDF Itinerary"
+                    className="w-full h-full border-none bg-white"
+                  />
                 </div>
               </motion.div>
             )}
